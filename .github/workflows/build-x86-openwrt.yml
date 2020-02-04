@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name: Build OpenWrt
+name: Build x86 OpenWrt
 
 on:
   release:
@@ -15,7 +15,7 @@ on:
     branches:
       - master
     paths:
-      - '.config'
+      - 'x86.config'
 #  schedule:
 #    - cron: 0 8 * * 5
 #  watch:
@@ -24,7 +24,7 @@ on:
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
-  CONFIG_FILE: .config
+  CONFIG_FILE: x86.config
   DIY_SH: diy.sh
   FREE_UP_DISK: false
   SSH_ACTIONS: false
@@ -37,6 +37,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Get build date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+
     - name: Checkout
       uses: actions/checkout@master
 
@@ -47,8 +51,12 @@ jobs:
         sudo swapoff /swapfile
         sudo rm -rf /swapfile /etc/apt/sources.list.d/*
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler
-        curl -fsSL https://raw.githubusercontent.com/P3TERX/dotfiles/master/.bashrc >> ~/.bashrc
+        sudo -E apt-get -qq install build-essential asciidoc \
+          binutils bzip2 gawk gettext git libncurses5-dev libz-dev \
+          patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion \
+          flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp \
+          libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev \
+          autoconf automake libtool autopoint device-tree-compiler
 
     - name: Free up disk space
       if: env.FREE_UP_DISK == 'true'
@@ -110,8 +118,9 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd openwrt/bin/targets/*/*
-        rm -rf packages
+        mkdir firmware && find openwrt/bin/targets/*/*/* -maxdepth 0 -name "*combined-squashfs*" | xargs -i mv -f {} ./firmware/
+        mv openwrt/.config ./firmware/
+        cd firmware
         echo "::set-env name=FIRMWARE::$(pwd)"
         echo "::set-output name=status::success"
 
@@ -119,5 +128,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: OpenWrt_firmware
+        name: ${{ steps.date.outputs.date }}_OpenWrt_firmware
         path: ${{ env.FIRMWARE }}
