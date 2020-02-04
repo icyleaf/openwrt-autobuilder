@@ -1,6 +1,6 @@
 # Actions-OpenWrt
 
-![Build OpenWrt](https://github.com/icyleaf/openwrt-autobuilder/workflows/Build%20OpenWrt/badge.svg?branch=master)
+![Build x86 OpenWrt](https://github.com/icyleaf/openwrt-autobuilder/workflows/Build%20x86%20OpenWrt/badge.svg?branch=master)
 
 Build OpenWrt using GitHub Actions
 
