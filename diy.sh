@@ -10,11 +10,11 @@
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
 # custom packages
-cd package/feeds
+echo "Download custom packages"
+mkdir -p package/icyleaf
+cd package/icyleaf
 
+git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
-
-git clone https://github.com/pymumu/luci-app-smartdns
-svn co https://github.com/pymumu/smartdns/trunk/package/openwrt smartdns
 
 cd -
