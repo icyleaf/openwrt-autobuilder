@@ -14,4 +14,7 @@ cd package/feeds
 
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 
+git clone https://github.com/pymumu/luci-app-smartdns
+svn co https://github.com/pymumu/smartdns/trunk/package/openwrt smartdns
+
 cd -
