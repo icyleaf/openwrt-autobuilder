@@ -18,3 +18,9 @@ git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 
 cd -
+
+# passwall
+echo "Add lienol packages feed"
+echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
+./scripts/feeds update -a
+./scripts/feeds install -a
