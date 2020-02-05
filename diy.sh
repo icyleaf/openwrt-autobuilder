@@ -9,6 +9,9 @@
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
+# Modify default theme
+# sed -i 's/bootstrap/argon/g' openwrt/package/feeds/luci/luci-base/root/etc/config/luci
+
 # custom packages
 echo "Download custom packages"
 mkdir -p package/icyleaf
