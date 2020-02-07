@@ -17,6 +17,7 @@ on:
     paths:
       - 'diy.sh'
       - 'x86.config'
+      - '.github/workflows/build-x86-openwrt.yml'
   schedule:
     - cron: '0 5 * * 6'
 
