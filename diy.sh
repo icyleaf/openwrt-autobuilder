@@ -6,6 +6,13 @@
 # Blog: https://p3terx.com
 #=================================================
 
+# add lienol feed: such like passwall and themes
+echo "Add lienol packages feed"
+echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
+./scripts/feeds update -a
+./scripts/feeds install -a
+
+
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
@@ -21,9 +28,3 @@ git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 
 cd -
-
-# passwall
-echo "Add lienol packages feed"
-echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
-./scripts/feeds update -a
-./scripts/feeds install -a
