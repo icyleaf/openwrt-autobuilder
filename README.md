@@ -4,7 +4,7 @@
 
 Build OpenWrt using GitHub Actions
 
-[Read the details in my blog (in Chinese) | 中文教程](https://p3terx.com/archives/build-openwrt-with-github-actions.html)
+[Read the details in p3terx's blog (in Chinese) | 中文教程](https://p3terx.com/archives/build-openwrt-with-github-actions.html)
 
 ## Configuration
 
@@ -33,3 +33,4 @@ https://documenter.getpostman.com/view/14290/SzKPUgEo
 - [Cisco](https://www.cisco.com/)
 - [OpenWrt](https://github.com/openwrt/openwrt)
 - [Lean's OpenWrt](https://github.com/coolsnowwolf/lede)
+- [Lienol's OpenWrt package](https://github.com/Lienol/openwrt-package)
