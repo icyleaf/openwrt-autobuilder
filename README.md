@@ -2,7 +2,7 @@
 
 ![Build x86 OpenWrt](https://github.com/icyleaf/openwrt-autobuilder/workflows/Build%20x86%20OpenWrt/badge.svg?branch=master)
 
-Build OpenWrt using GitHub Actions
+Openwrt x86(i386/32bit) N270 CPU 自動鏡像生成 Based on [P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)
 
 [Read the details in p3terx's blog (in Chinese) | 中文教程](https://p3terx.com/archives/build-openwrt-with-github-actions.html)
 
