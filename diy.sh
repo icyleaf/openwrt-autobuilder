@@ -10,6 +10,7 @@ OPENWRT_PATH=`pwd`
 ##################################
 # Settings
 ##################################
+echo ""
 echo "Configuring ..."
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
@@ -28,12 +29,11 @@ sed -i 's/bootstrap/argon/g' package/feeds/luci/luci-base/root/etc/config/luci
 # Custom feed
 ##################################
 # add lienol feed: such like passwall and themes
+echo ""
 echo "Add lienol packages feed"
 echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-echo "Reviewing feeds.conf.default"
-cat feeds.conf.default
 
 ##################################
 # Custom package
@@ -41,6 +41,7 @@ cat feeds.conf.default
 rm -rf package/lean/luci-theme-argon
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
 
+echo ""
 echo "Download Custom packages"
 mkdir -p package/icyleaf
 cd package/icyleaf
