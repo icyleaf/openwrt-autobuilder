@@ -21,7 +21,7 @@ if [ -n $OPENWRT_ROOT_PASSWORD ]; then
 fi
 
 # Modify default theme
-# sed -i 's/bootstrap/argon/g' openwrt/package/feeds/luci/luci-base/root/etc/config/luci
+sed -i 's/bootstrap/argon/g' openwrt/package/feeds/luci/luci-base/root/etc/config/luci
 
 ##################################
 # Custom feed
@@ -43,5 +43,10 @@ cd package/icyleaf
 
 git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
+
+cd -
+cd lede/package/lean
+rm -rf luci-theme-argon
+git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 
 cd -
