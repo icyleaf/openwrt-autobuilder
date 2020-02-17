@@ -14,6 +14,12 @@ OPENWRT_PATH=`pwd`
 echo ""
 echo "Add lienol packages feed"
 echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
+
+if [ -d feeds ]; then
+  echo "Cleaning old feeds"
+  rm -rf feeds
+fi
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
