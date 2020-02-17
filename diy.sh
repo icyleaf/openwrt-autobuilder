@@ -5,6 +5,7 @@
 # Author: P3TERX
 # Blog: https://p3terx.com
 #=================================================
+OPENWRT_PATH=`pwd`
 
 ##################################
 # Settings
@@ -21,7 +22,7 @@ if [ -n $OPENWRT_ROOT_PASSWORD ]; then
 fi
 
 # Modify default theme
-sed -i 's/bootstrap/argon/g' openwrt/package/feeds/luci/luci-base/root/etc/config/luci
+sed -i 's/bootstrap/argon/g' package/feeds/luci/luci-base/root/etc/config/luci
 
 ##################################
 # Custom feed
@@ -37,6 +38,9 @@ cat feeds.conf.default
 ##################################
 # Custom package
 ##################################
+rm -rf package/lean/luci-theme-argon
+git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
+
 echo "Download Custom packages"
 mkdir -p package/icyleaf
 cd package/icyleaf
@@ -44,9 +48,4 @@ cd package/icyleaf
 git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 
-cd -
-cd lede/package/lean
-rm -rf luci-theme-argon
-git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-
-cd -
+cd $OPENWRT_PATH
