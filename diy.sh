@@ -19,7 +19,7 @@ if [ -n $OPENWRT_ROOT_PASSWORD ]; then
   echo "WARN: root password is changed from your secret, make sure you add 'OPENWRT_ROOT_PASSWORD' secret"
   # Modify password of root if present (encoded password)
   # For example: passwot = $1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.
-  sed -i "s/root::0:0:99999:7:::/root:${OPENWRT_ROOT_PASSWORD}:0:0:99999:7:::/g" package/base-files/files/etc/shadow
+  sed -i "s|root::0:0:99999:7:::|root:$OPENWRT_ROOT_PASSWORD:0:0:99999:7:::|g" package/base-files/files/etc/shadow
 fi
 
 # Modify default theme

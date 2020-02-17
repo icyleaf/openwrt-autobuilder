@@ -72,12 +72,6 @@ jobs:
     - name: Clone source code
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
 
-    - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
-
-    - name: Install feeds
-      run: cd openwrt && ./scripts/feeds install -a
-
     - name: Load custom configuration
       env:
         OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
