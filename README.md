@@ -8,7 +8,8 @@ Openwrt x86(i386/32bit) N270 CPU 自動鏡像生成 Based on [P3TERX/Actions-Ope
 
 ## Configuration
 
-- 10.0.0.1
+- Gateway: 10.0.0.1
+- Change Root password if present (Copy encoded password from /etc/shadow)
 
 ## API
 
