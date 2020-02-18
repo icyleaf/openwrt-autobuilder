@@ -79,7 +79,7 @@ jobs:
       if: env.CHECK_CONFIG == 'true'
       run: |
         echo "Checking .config"
-        ABORT_ON_ERROR='false'
+        echo "::set-env name=ABORT_ON_ERROR::false"
         while IFS= read -r line
         do
           if [[ -n $line ]]; then
@@ -93,7 +93,8 @@ jobs:
             fi
           fi
         done < $CONFIG_FILE
-        if [[ $ABORT_ON_ERROR == 'true' ]]; then
+
+        if [[ "${{ env.ABORT_ON_ERROR }}" == 'true' ]]; then
           echo 'Fail and exit run action.'
           exit 1
         fi
