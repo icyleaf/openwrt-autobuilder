@@ -26,6 +26,7 @@ env:
   REPO_BRANCH: master
   CONFIG_FILE: x86.config
   DIY_SH: diy.sh
+  CHECK_CONFIG: true
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -70,9 +71,32 @@ jobs:
 
     - name: Use .config file
       run: |
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
         cd openwrt
         make defconfig
+
+    - name: Use .config file
+      if: env.CHECK_CONFIG == 'true'
+      run: |
+        echo "Checking .config"
+        ABORT_ON_ERROR='false'
+        while IFS= read -r line
+        do
+          if [[ -n $line ]]; then
+            config=`echo $line | grep '^CONFIG'`
+            if [[ -n $config ]]; then
+              has_config=`cat openwrt/.config | grep $line`
+              if [[ -z $has_config ]]; then
+                echo "Missing config: $config"
+                ABORT_ON_ERROR='true'
+              fi
+            fi
+          fi
+        done < $CONFIG_FILE
+        if [[ $ABORT_ON_ERROR == 'true' ]]; then
+          echo 'Fail and exit run action.'
+          exit 1
+        fi
 
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@master
