@@ -79,8 +79,7 @@ jobs:
       if: env.CHECK_CONFIG == 'true'
       run: |
         chmod +x check_config.sh
-        cd openwrt
-        ../check_config.sh
+        ./check_config.sh
 
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@master
