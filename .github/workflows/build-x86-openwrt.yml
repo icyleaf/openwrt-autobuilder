@@ -75,7 +75,7 @@ jobs:
         cd openwrt
         make defconfig
 
-    - name: Use .config file
+    - name: Check .config file
       if: env.CHECK_CONFIG == 'true'
       run: |
         echo "Checking .config"
