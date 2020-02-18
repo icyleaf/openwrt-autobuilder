@@ -69,7 +69,6 @@ jobs:
         chmod +x $DIY_SH
         cd openwrt
         ../$DIY_SH
-        make defconfig
 
     - name: Review configuration
       run: |
