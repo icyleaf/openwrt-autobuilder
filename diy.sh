@@ -5,32 +5,37 @@
 # Author: P3TERX
 # Blog: https://p3terx.com
 #=================================================
+
 OPENWRT_PATH=`pwd`
+echo "Openwrt path: $OPENWRT_PATH"
 
 ##################################
 # Custom feed
 ##################################
 # add lienol feed: such like passwall and themes
 echo ""
-echo "Add lienol packages feed"
+echo "Adding lienol packages feed"
 echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
 
-if [ -d feeds ]; then
-  echo "Cleaning old feeds"
-  rm -rf feeds
-fi
-
+echo ""
+echo "Updating feeds"
 ./scripts/feeds update -a
+
+echo ""
+echo "Installing feeds"
 ./scripts/feeds install -a
 
 ##################################
 # Custom package
 ##################################
+
+echo ""
+echo "Using luci-theme-argon offical source code"
 rm -rf package/lean/luci-theme-argon
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
 
 echo ""
-echo "Download Custom packages"
+echo "Downloading Custom packages"
 mkdir -p package/icyleaf
 cd package/icyleaf
 

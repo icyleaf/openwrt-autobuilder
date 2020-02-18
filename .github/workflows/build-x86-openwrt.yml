@@ -15,9 +15,9 @@ on:
     branches:
       - master
     paths:
-      - 'diy.sh'
-      - '.config'
-      - '.github/workflows/build-x86-openwrt.yml'
+      - '*.sh'
+      - '*.config'
+      - '.github/**/*'
   schedule:
     - cron: '0 5 * * 6'
 
@@ -26,7 +26,6 @@ env:
   REPO_BRANCH: master
   CONFIG_FILE: x86.config
   DIY_SH: diy.sh
-  FREE_UP_DISK: false
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -58,26 +57,13 @@ jobs:
           libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev \
           autoconf automake libtool autopoint device-tree-compiler
 
-    - name: Free up disk space
-      if: env.FREE_UP_DISK == 'true'
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        echo "Deleting files, please wait ..."
-        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d/*
-        docker rmi `docker images -q`
-        sudo -E apt-get -q purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
-        sudo -E apt-get -qq autoremove --purge
-        sudo -E apt-get -qq clean
-
     - name: Clone source code
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+      run: git clone --progress --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
 
     - name: Load custom configuration
       env:
         OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
       run: |
-        [ -e openwrt/.config ] && rm -f openwrt/.config
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_SH
