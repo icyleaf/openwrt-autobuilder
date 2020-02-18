@@ -24,7 +24,7 @@ on:
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
-  CONFIG_FILE: .config
+  CONFIG_FILE: x86.config
   DIY_SH: diy.sh
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
   UPLOAD_BIN_DIR: false
@@ -64,11 +64,15 @@ jobs:
       env:
         OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
       run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_SH
         cd openwrt
         ../$DIY_SH
+
+    - name: Use .config file
+      run: |
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        cd openwrt
+        make defconfig
 
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@master
