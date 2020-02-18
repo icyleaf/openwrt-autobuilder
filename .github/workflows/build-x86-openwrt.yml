@@ -78,26 +78,9 @@ jobs:
     - name: Check .config file
       if: env.CHECK_CONFIG == 'true'
       run: |
-        echo "Checking .config"
-        echo "::set-env name=ABORT_ON_ERROR::false"
-        while IFS= read -r line
-        do
-          if [[ -n $line ]]; then
-            config=`echo $line | grep '^CONFIG'`
-            if [[ -n $config ]]; then
-              has_config=`cat openwrt/.config | grep $line`
-              if [[ -z $has_config ]]; then
-                echo "Missing config: $config"
-                ABORT_ON_ERROR='true'
-              fi
-            fi
-          fi
-        done < $CONFIG_FILE
-
-        if [[ "${{ env.ABORT_ON_ERROR }}" == 'true' ]]; then
-          echo 'Fail and exit run action.'
-          exit 1
-        fi
+        chmod +x check_config.sh
+        cd openwrt
+        ../check_config.sh
 
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@master
