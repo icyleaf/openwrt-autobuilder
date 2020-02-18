@@ -20,3 +20,5 @@ if [[ "$ABORT_ON_ERROR" == 'true' ]]; then
   echo 'Fail and exit run action.'
   exit 1
 fi
+
+echo "Well done, All passed."
