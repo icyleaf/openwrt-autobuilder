@@ -26,7 +26,7 @@ env:
   REPO_BRANCH: master
   CONFIG_FILE: .config
   DIY_SH: diy.sh
-  SSH_ACTIONS: false
+  SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   TZ: Asia/Shanghai
@@ -69,11 +69,6 @@ jobs:
         chmod +x $DIY_SH
         cd openwrt
         ../$DIY_SH
-
-    - name: Review configuration
-      run: |
-        cd openwrt
-        cat .config
 
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@master
