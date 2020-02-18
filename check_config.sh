@@ -14,7 +14,7 @@ do
       fi
     fi
   fi
-done < $CONFIG_FILE
+done < "../$CONFIG_FILE"
 
 if [[ "$ABORT_ON_ERROR" == 'true' ]]; then
   echo 'Fail and exit run action.'
