@@ -69,6 +69,10 @@ jobs:
         cd openwrt
         ../$DIY_SH
 
+    - name: SSH connection to Actions
+      uses: P3TERX/debugger-action@master
+      if: env.SSH_ACTIONS == 'true'
+
     - name: Use .config file
       run: |
         [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
@@ -80,10 +84,6 @@ jobs:
       run: |
         chmod +x check_config.sh
         ./check_config.sh
-
-    - name: SSH connection to Actions
-      uses: P3TERX/debugger-action@master
-      if: env.SSH_ACTIONS == 'true'
 
     - name: Download package
       id: package
