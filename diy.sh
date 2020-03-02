@@ -61,4 +61,4 @@ if [ -n $OPENWRT_ROOT_PASSWORD ]; then
 fi
 
 # Modify default theme
-sed -i 's/bootstrap/argon/g' package/feeds/luci/luci-base/root/etc/config/luci
+# sed -i 's/bootstrap/argon/g' package/feeds/luci/luci-base/root/etc/config/luci
