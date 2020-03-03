@@ -39,9 +39,9 @@ echo "Downloading Custom packages"
 mkdir -p package/icyleaf
 cd package/icyleaf
 
+git clone --depth=1 https://github.com/rufengsuixing/luci-app-adguardhome.git
 git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
 svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
-svn co https://github.com/pymumu/smartdns/trunk/package/openwrt smartdns
 
 cd $OPENWRT_PATH
 
