@@ -16,8 +16,8 @@ on:
       - master
     paths:
       - '*.sh'
-      - '*.config'
-      - '.github/**/*'
+      - 'amd64.config'
+      - '.github/workflows/*-amd64-*.yml'
   schedule:
     - cron: '0 5 * * 6'
 
