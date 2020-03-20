@@ -1,0 +1,126 @@
+#=================================================
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: P3TERX
+# Blog: https://p3terx.com
+#=================================================
+
+name: Build amd64 OpenWrt
+
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - master
+    paths:
+      - '*.sh'
+      - '*.config'
+      - '.github/**/*'
+  schedule:
+    - cron: '0 5 * * 6'
+
+env:
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH: master
+  CONFIG_FILE: amd64.config
+  DIY_SH: diy.sh
+  CHECK_CONFIG: true
+  SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get build date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo swapoff /swapfile
+        sudo rm -rf /swapfile /etc/apt/sources.list.d/*
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install build-essential asciidoc \
+          binutils bzip2 gawk gettext git libncurses5-dev libz-dev \
+          patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion \
+          flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp \
+          libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev \
+          autoconf automake libtool autopoint device-tree-compiler
+
+    - name: Clone source code
+      run: git clone --progress --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+
+    - name: Load custom configuration
+      env:
+        OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
+      run: |
+        chmod +x $DIY_SH
+        cd openwrt
+        ../$DIY_SH
+
+    - name: SSH connection to Actions
+      uses: P3TERX/debugger-action@master
+      if: env.SSH_ACTIONS == 'true'
+
+    - name: Use .config file
+      run: |
+        [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
+        cd openwrt
+        make defconfig
+
+    - name: Check .config file
+      if: env.CHECK_CONFIG == 'true'
+      run: |
+        chmod +x check_config.sh
+        ./check_config.sh
+
+    - name: Download package
+      id: package
+      run: |
+        cd openwrt
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 V=s
+        echo "::set-output name=status::success"
+
+    - name: Upload bin directory
+      uses: actions/upload-artifact@master
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: OpenWrt_directory
+        path: openwrt/bin
+
+    - name: Organize files
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: |
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+        rm -f openwrt-x86-generic-rootfs-squashfs.img.gz openwrt-x86-generic-vmlinuz
+        echo "::set-env name=FIRMWARE::$(pwd)"
+        echo "::set-output name=status::success"
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@master
+      if: steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: ${{ steps.date.outputs.date }}_OpenWrt_firmware
+        path: ${{ env.FIRMWARE }}
