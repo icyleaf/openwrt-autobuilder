@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name: Build x86 OpenWrt
+name: Build amd64 OpenWrt
 
 on:
   release:
@@ -16,15 +16,15 @@ on:
       - master
     paths:
       - '*.sh'
-      - 'x86.config'
-      - '.github/workflows/*-x86-*.yml'
+      - 'amd64.config'
+      - '.github/workflows/*-amd64-*.yml'
   schedule:
     - cron: '0 5 * * 6'
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
-  CONFIG_FILE: x86.config
+  CONFIG_FILE: amd64.config
   DIY_SH: diy.sh
   CHECK_CONFIG: true
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
@@ -114,7 +114,7 @@ jobs:
       run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
-        rm -f openwrt-x86-generic-rootfs-squashfs.img.gz openwrt-x86-generic-vmlinuz
+        rm -f openwrt-x86-64-rootfs-squashfs.img.gz openwrt-x86-64-vmlinuz
         echo "::set-env name=FIRMWARE::$(pwd)"
         echo "::set-output name=status::success"
 
@@ -122,5 +122,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ steps.date.outputs.date }}_OpenWrt_x86_firmware
+        name: ${{ steps.date.outputs.date }}_OpenWrt_amd64_firmware
         path: ${{ env.FIRMWARE }}
