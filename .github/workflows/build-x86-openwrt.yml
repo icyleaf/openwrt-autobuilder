@@ -76,6 +76,7 @@ jobs:
     - name: Use .config file
       run: |
         [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
+        cat common.config >> openwrt/.config
         cd openwrt
         make defconfig
 

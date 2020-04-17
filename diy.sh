@@ -18,6 +18,10 @@ echo "Adding lienol packages feed"
 echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
 
 echo ""
+echo "add helloworld feeds"
+sed -i "s/^#\(src-git helloworld .*\)$/\1/" feeds.conf.default
+
+echo ""
 echo "Updating feeds"
 ./scripts/feeds update -a
 
