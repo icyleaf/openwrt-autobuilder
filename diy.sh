@@ -15,7 +15,7 @@ echo "Openwrt path: $OPENWRT_PATH"
 # add lienol feed: such like passwall and themes
 echo ""
 echo "Adding lienol packages feed"
-echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
+echo "src-git lienol https://github.com/chenshuo890/lienol-openwrt-package.git" >> feeds.conf.default
 
 echo ""
 echo "add helloworld feeds"
