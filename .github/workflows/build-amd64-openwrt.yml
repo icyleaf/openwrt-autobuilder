@@ -22,6 +22,7 @@ on:
     - cron: '0 5 * * 5'
 
 env:
+  TZ: Asia/Shanghai
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
   CONFIG_FILE: amd64.config
@@ -30,11 +31,13 @@ env:
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  TZ: Asia/Shanghai
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
+    if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
     - name: Get build date
@@ -48,16 +51,21 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo swapoff /swapfile
-        sudo rm -rf /swapfile /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3.5 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf
+        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-1804)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
-        
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
     - name: Clone source code
-      run: git clone --progress --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Load custom configuration
       env:
@@ -65,11 +73,11 @@ jobs:
       run: |
         chmod +x $DIY_SH
         cd openwrt
-        ../$DIY_SH
+        $GITHUB_WORKSPACE/$DIY_SH
 
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@master
-      if: env.SSH_ACTIONS == 'true'
+      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
 
     - name: Use .config file
       run: |
@@ -97,8 +105,12 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 V=s
+        make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
+
+    - name: Check space usage
+      if: (!cancelled())
+      run: df -hT
 
     - name: Upload bin directory
       uses: actions/upload-artifact@master
@@ -123,3 +135,17 @@ jobs:
       with:
         name: ${{ steps.date.outputs.date }}_OpenWrt_amd64_firmware
         path: ${{ env.FIRMWARE }}
+
+    - name: Upload firmware to cowtransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+
+    - name: Upload firmware to WeTransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
