@@ -15,7 +15,11 @@ echo "Openwrt path: $OPENWRT_PATH"
 # add lienol feed: such like passwall and themes
 echo ""
 echo "Adding lienol packages feed"
-echo "src-git lienol https://github.com/Lienol/openwrt-package" >> feeds.conf.default
+echo "src-git lienol https://github.com/chenshuo890/lienol-openwrt-package.git" >> feeds.conf.default
+
+echo ""
+echo "add helloworld feeds"
+sed -i "s/^#\(src-git helloworld .*\)$/\1/" feeds.conf.default
 
 echo ""
 echo "Updating feeds"
@@ -41,7 +45,7 @@ cd package/icyleaf
 
 git clone --depth=1 https://github.com/rufengsuixing/luci-app-adguardhome.git
 git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
-svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
+svn co https://github.com/vernesong/OpenClash/branches/master/luci-app-openclash
 
 cd $OPENWRT_PATH
 
