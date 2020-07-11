@@ -17,6 +17,7 @@ on:
     paths:
       - '*.sh'
       - 'amd64.config'
+      - 'common.config'
       - '.github/workflows/*-amd64-*.yml'
   schedule:
     - cron: '0 5 * * 5'
