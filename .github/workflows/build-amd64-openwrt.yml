@@ -105,9 +105,9 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "::set-env name=DEVICE_NAME::_$(cat DEVICE_NAME)"
-        echo "::set-env name=FILE_DATE::_$(date +"%Y%m%d%H%M")"
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | 's/CONFIG_TARGET_(.*)_DEVICE_(.*)=y/\1_\2/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "::set-env name=DEVICE_NAME::$(cat DEVICE_NAME)"
+        echo "::set-env name=FILE_DATE::$(date +"%Y%m%d%H%M")"
 
     - name: Check space usage
       if: (!cancelled())
@@ -117,7 +117,7 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: ${{ env.FILE_DATE }}_OpenWrt_${{ env.DEVICE_NAME }}_firmware
         path: openwrt/bin
 
     - name: Organize files
@@ -126,7 +126,8 @@ jobs:
       run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
-        rm -f openwrt-x86-64-rootfs-squashfs.img.gz openwrt-x86-64-vmlinuz
+        ls
+        rm -f openwrt-x86-64-generic-squashfs-rootfs.img.gz openwrt-x86-64-vmlinuz openwrt-x86-64-generic-kernel.bin
         echo "::set-env name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
 
