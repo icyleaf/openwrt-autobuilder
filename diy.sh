@@ -40,12 +40,11 @@ git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lea
 
 echo ""
 echo "Downloading Custom packages"
-mkdir -p package/icyleaf
-cd package/icyleaf
-
-git clone --depth=1 https://github.com/Twinzo1/AdGuardHome.git
-git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
-svn co https://github.com/vernesong/OpenClash/branches/master/luci-app-openclash
+git clone --depth=1 https://github.com/kongfl888/luci-app-adguardhome.git package/luci-theme-opentomato
+git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
+git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/OpenClash
+mv package/OpenClash/luci-app-openclash package/luci-app-openclash
+rm -rf package/OpenClash
 
 cd $OPENWRT_PATH
 

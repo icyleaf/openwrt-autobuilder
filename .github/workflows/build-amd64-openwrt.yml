@@ -30,6 +30,7 @@ env:
   DIY_SH: diy.sh
   CHECK_CONFIG: true
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
+  OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
@@ -41,10 +42,6 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
-    - name: Get build date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
-
     - name: Checkout
       uses: actions/checkout@master
 
@@ -69,8 +66,6 @@ jobs:
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Load custom configuration
-      env:
-        OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
       run: |
         chmod +x $DIY_SH
         cd openwrt
@@ -86,6 +81,8 @@ jobs:
         cat common.config >> openwrt/.config
         cd openwrt
         make defconfig
+        echo "Review .config file"
+        cat .config
 
     - name: Check .config file
       if: env.CHECK_CONFIG == 'true'
@@ -108,6 +105,9 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "::set-env name=DEVICE_NAME::_$(cat DEVICE_NAME)"
+        echo "::set-env name=FILE_DATE::_$(date +"%Y%m%d%H%M")"
 
     - name: Check space usage
       if: (!cancelled())
@@ -117,7 +117,7 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: OpenWrt_directory
+        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: openwrt/bin
 
     - name: Organize files
@@ -127,14 +127,14 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         rm -f openwrt-x86-64-rootfs-squashfs.img.gz openwrt-x86-64-vmlinuz
-        echo "::set-env name=FIRMWARE::$(pwd)"
+        echo "::set-env name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
 
     - name: Upload firmware directory
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ steps.date.outputs.date }}_OpenWrt_amd64_firmware
+        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
     - name: Upload firmware to cowtransfer
