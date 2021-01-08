@@ -20,14 +20,15 @@ on:
       - 'common.config'
       - '.github/workflows/*-x86-*.yml'
   schedule:
-    - cron: '0 5 * * 5'
+    - cron: '0 1 * * 5'
 
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
   CONFIG_FILE: x86.config
-  DIY_SH: diy.sh
+  PREPARE_SH: prepare.sh
+  POST_INSTALL_SH: post-install.sh
   CHECK_CONFIG: true
   OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
@@ -69,11 +70,11 @@ jobs:
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: Load custom configuration
+    - name: Launching prepare script
       run: |
-        chmod +x $DIY_SH
+        chmod +x $PREPARE_SH
         cd openwrt
-        $GITHUB_WORKSPACE/$DIY_SH
+        $GITHUB_WORKSPACE/$PREPARE_SH
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -119,6 +120,12 @@ jobs:
     - name: Check space usage
       if: (!cancelled())
       run: df -hT
+
+    - name: Launching post-install script
+      run: |
+        chmod +x $POST_INSTALL_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$POST_INSTALL_SH
 
     - name: Upload bin directory
       uses: actions/upload-artifact@master
