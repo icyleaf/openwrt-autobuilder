@@ -54,7 +54,7 @@ cd $OPENWRT_PATH
 echo ""
 echo "Configuring ..."
 # Modify default IP
-sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/10.10.10.1/g' package/base-files/files/bin/config_generate
 
 if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
   echo "WARN: root password is changed from your secret, make sure you add 'OPENWRT_ROOT_PASSWORD' secret"
