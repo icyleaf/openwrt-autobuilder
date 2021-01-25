@@ -14,8 +14,8 @@ echo "Openwrt path: $OPENWRT_PATH"
 ##################################
 # add lienol feed: such like passwall and themes
 echo ""
-echo "Adding lienol packages feed"
-echo "src-git lienol https://github.com/chenshuo890/lienol-openwrt-package.git" >> feeds.conf.default
+echo "Adding diy packages feed"
+echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> feeds.conf.default
 
 echo ""
 echo "add helloworld feeds"
@@ -40,12 +40,11 @@ git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lea
 
 echo ""
 echo "Downloading Custom packages"
-mkdir -p package/icyleaf
-cd package/icyleaf
-
-git clone --depth=1 https://github.com/rufengsuixing/luci-app-adguardhome.git
-git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git
-svn co https://github.com/vernesong/OpenClash/branches/master/luci-app-openclash
+git clone --depth=1 https://github.com/kongfl888/luci-app-adguardhome.git package/luci-app-adguardhome
+git clone --depth=1 https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
+git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/OpenClash
+mv package/OpenClash/luci-app-openclash package/luci-app-openclash
+rm -rf package/OpenClash
 
 cd $OPENWRT_PATH
 
@@ -55,9 +54,9 @@ cd $OPENWRT_PATH
 echo ""
 echo "Configuring ..."
 # Modify default IP
-sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/10.10.10.1/g' package/base-files/files/bin/config_generate
 
-if [ -n $OPENWRT_ROOT_PASSWORD ]; then
+if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
   echo "WARN: root password is changed from your secret, make sure you add 'OPENWRT_ROOT_PASSWORD' secret"
   # Modify password of root if present (encoded password)
   # For example: passwot = $1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.

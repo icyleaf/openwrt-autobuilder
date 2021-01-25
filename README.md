@@ -9,7 +9,7 @@ Openwrt x86(i386/32bit)/amd86(x86 64bit) CPU 自動鏡像生成 Based on [P3TERX
 
 ## Configuration
 
-- Gateway: 10.0.0.1
+- Gateway: 10.10.10.1
 - Theme: bootstrap (default)
 - Change Root password if present (Copy encoded password from /etc/shadow)
 
