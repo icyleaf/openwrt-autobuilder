@@ -8,17 +8,18 @@
 
 OPENWRT_PATH=`pwd`
 echo "Openwrt path: $OPENWRT_PATH"
+echo ""
 
+echo "Perpare Script [Start]"
 ##################################
 # Custom feed
 ##################################
-# add lienol feed: such like passwall and themes
 echo ""
-echo "Adding diy packages feed"
+echo "Adding lienol xxx feeds"
 echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> feeds.conf.default
 
 echo ""
-echo "add helloworld feeds"
+echo "add lean xxx feeds"
 sed -i "s/^#\(src-git helloworld .*\)$/\1/" feeds.conf.default
 
 echo ""
@@ -65,3 +66,6 @@ fi
 
 # Modify default theme
 # sed -i 's/bootstrap/argon/g' package/feeds/luci/luci-base/root/etc/config/luci
+
+
+echo "Perpare Script [End]"
