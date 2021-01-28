@@ -1,0 +1,16 @@
+{
+  auto_https disable_redirects
+  auto_https off
+}
+
+:80
+encode zstd gzip
+templates
+
+file_server browse {
+  root /openwrt/src
+}
+
+log {
+  output stdout
+}

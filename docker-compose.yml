@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  builder:
+    build:
+      context: .
+    image: openwrt-builder
+    container_name: openwrt-builder
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+    volumes:
+      - ./:/workspace
+      - /Volumes/OpenWrt:/openwrt
+    ports:
+      - "12019:2019"
+      - "10081:80"
+

@@ -7,6 +7,10 @@
 #=================================================
 
 OPENWRT_PATH=`pwd`
-echo "Post-Install Script [Start]"
+echo ""
+echo "= Post-Install Script [Start] ="
+echo ""
 
-echo "Post-Install Script [End]"
+echo ""
+echo "= Post-Install Script [End] ="
+echo ""

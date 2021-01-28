@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if ! [ -d "${OPENWRT_PATH}/src" ]; then
+  git clone --depth 1 https://github.com/coolsnowwolf/lede.git ${OPENWRT_PATH}/src
+fi
+cd ${OPENWRT_PATH}/src
+
+# prepare
+${WORKSPACE_PATH}/prepare.sh
+
+# combon config and make config
+cp ${WORKSPACE_PATH}/amd64.config ${OPENWRT_PATH}/src/.config
+cat ${WORKSPACE_PATH}/common.config >> ${OPENWRT_PATH}/src/.config
+make defconfig

@@ -8,9 +8,10 @@
 
 OPENWRT_PATH=`pwd`
 echo "Openwrt path: $OPENWRT_PATH"
-echo ""
 
-echo "Perpare Script [Start]"
+echo ""
+echo "= Perpare Script [Start] ="
+echo ""
 ##################################
 # Custom feed
 ##################################
@@ -67,5 +68,6 @@ fi
 # Modify default theme
 # sed -i 's/bootstrap/argon/g' package/feeds/luci/luci-base/root/etc/config/luci
 
-
-echo "Perpare Script [End]"
+echo ""
+echo "= Perpare Script [End] ="
+echo ""
