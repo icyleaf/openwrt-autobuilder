@@ -1,7 +1,13 @@
 #!/bin/bash
 
 if ! [ -d "${OPENWRT_PATH}/src" ]; then
+  echo "Cloning lede"
   git clone --depth 1 https://github.com/coolsnowwolf/lede.git ${OPENWRT_PATH}/src
+else
+  echo "Updating lede"
+  cd ${OPENWRT_PATH}/src
+  git fetch
+  git merge origin master
 fi
 cd ${OPENWRT_PATH}/src
 

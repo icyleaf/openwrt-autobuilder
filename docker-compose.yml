@@ -11,7 +11,7 @@ services:
     volumes:
       - ./:/workspace
       - /Volumes/OpenWrt:/openwrt
+    stdin_open: true
     ports:
       - "12019:2019"
       - "10081:80"
-
