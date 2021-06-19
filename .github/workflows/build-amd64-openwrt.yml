@@ -89,10 +89,12 @@ jobs:
         cat .config
 
     - name: Check .config file
+      id: check_config
       if: env.CHECK_CONFIG == 'true'
       run: |
         chmod +x check_config.sh
         ./check_config.sh
+        echo "::set-output name=status::success"
 
     - name: Download package
       id: package
@@ -158,7 +160,7 @@ jobs:
 
     - name: Generate release tag
       id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
@@ -183,7 +185,7 @@ jobs:
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
         keep_latest: 3
         delete_tags: true
