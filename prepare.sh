@@ -20,7 +20,7 @@ echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> fee
 
 echo ""
 echo "add lean xxx feeds"
-sed -i "s/^#\(src-git helloworld .*\)$/\1/" feeds.conf.default
+echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
 
 echo ""
 echo "Updating feeds"
