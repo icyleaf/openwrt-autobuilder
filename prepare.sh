@@ -23,6 +23,10 @@ echo "add lean xxx feeds"
 echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
 
 echo ""
+echo "add icyleaf feeds"
+echo "src-git icyleaf https://github.com/icyleaf/openwrt-packages.git" >> feeds.conf.default
+
+echo ""
 echo "Updating feeds"
 ./scripts/feeds update -a
 
