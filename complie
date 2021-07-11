@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd ${OPENWRT_PATH}/src
+
+# complie
+make download -j8
+
+echo -e "$(nproc) thread compile"
+make -j$(nproc) || make -j1 || make -j1 V=s
+
+# post-install
+${WORKSPACE_PATH}/post-install.sh
