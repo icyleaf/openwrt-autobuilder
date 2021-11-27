@@ -20,7 +20,7 @@ echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> fee
 
 echo ""
 echo "add lean xxx feeds"
-sed -i "s/^#\(src-git helloworld .*\)$/\1/" feeds.conf.default
+echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
 
 echo ""
 echo "Updating feeds"
@@ -34,13 +34,14 @@ echo "Installing feeds"
 # Custom package
 ##################################
 
-echo ""
-echo "Using luci-theme-argon offical source code"
-rm -rf package/lean/luci-theme-argon
-git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
+# echo ""
+# echo "Using luci-theme-argon offical source code"
+# rm -rf package/lean/luci-theme-argon
+# git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
 
 echo ""
 echo "Downloading Custom packages"
+git clone --depth=1 https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
 git clone --depth=1 https://github.com/kongfl888/luci-app-adguardhome.git package/luci-app-adguardhome
 git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/OpenClash
 mv package/OpenClash/luci-app-openclash package/luci-app-openclash
@@ -65,6 +66,5 @@ fi
 
 # Modify default theme
 # sed -i 's/bootstrap/argon/g' package/feeds/luci/luci-base/root/etc/config/luci
-
 
 echo "Perpare Script [End]"
