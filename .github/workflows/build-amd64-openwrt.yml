@@ -67,6 +67,9 @@ jobs:
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Launching prepare script
+      env:
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_USER: ${{ github.actor }}
       run: |
         chmod +x $PREPARE_SH
         cd openwrt
