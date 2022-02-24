@@ -19,8 +19,6 @@ on:
       - 'x86.config'
       - 'common.config'
       - '.github/workflows/*-x86-*.yml'
-  schedule:
-    - cron: '0 1 * * 5'
 
 env:
   TZ: Asia/Shanghai
