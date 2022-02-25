@@ -23,7 +23,7 @@ on:
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: openwrt-18.06
+  REPO_BRANCH: master
   CONFIG_FILE: amd64.config
   PREPARE_SH: prepare.sh
   POST_INSTALL_SH: post-install.sh
