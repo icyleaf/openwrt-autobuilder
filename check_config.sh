@@ -1,10 +1,11 @@
 #!/bin/bash
 
+FILE="$1"
 
 ABORT_ON_ERROR='false'
 function validate_config() {
-  FILE=$1
-  echo "  Enter ${FILE} file"
+  local file=$1
+  echo "  Enter ${file} file"
   while IFS= read -r line
   do
     if [[ -n $line ]]; then
@@ -17,12 +18,12 @@ function validate_config() {
         fi
       fi
     fi
-  done < $FILE
+  done < $file
 }
 
 echo "Checking .config"
 validate_config $CONFIG_FILE
-validate_config "common.config"
+validate_config $FILE
 
 if [[ "$ABORT_ON_ERROR" == 'true' ]]; then
   echo 'Fail and exit run action.'

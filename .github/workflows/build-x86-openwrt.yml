@@ -97,7 +97,7 @@ jobs:
       if: env.CHECK_CONFIG == 'true'
       run: |
         chmod +x check_config.sh
-        ./check_config.sh
+        ./check_config.sh common.config
 
     - name: Download package
       id: package

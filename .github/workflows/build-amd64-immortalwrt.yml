@@ -94,7 +94,7 @@ jobs:
       if: env.CHECK_CONFIG == 'true'
       run: |
         chmod +x check_config.sh
-        ./check_config.sh
+        ./check_config.sh common-immortalwrt.config
         echo "::set-output name=status::success"
 
     - name: Download package
