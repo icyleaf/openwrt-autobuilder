@@ -17,7 +17,7 @@ on:
     paths:
       - '*.sh'
       - 'amd64.config'
-      - 'common.config'
+      - 'common-immortalwrt.config'
       - '.github/workflows/*-amd64-immortalwrt.yml'
 
 env:
@@ -25,7 +25,7 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
   CONFIG_FILE: amd64.config
-  PREPARE_SH: prepare.sh
+  PREPARE_SH: prepare-immortalwrt.sh
   POST_INSTALL_SH: post-install.sh
   CHECK_CONFIG: true
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
@@ -83,7 +83,7 @@ jobs:
     - name: Use .config file
       run: |
         [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
-        cat common.config >> openwrt/.config
+        cat common-immortalwrt.config >> openwrt/.config
         cd openwrt
         make defconfig
         echo "Review .config file"
