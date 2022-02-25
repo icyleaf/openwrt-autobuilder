@@ -33,10 +33,6 @@ echo "Installing feeds"
 # rm -rf package/lean/luci-theme-argon
 # git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
 
-echo ""
-echo "Downloading Custom packages"
-git clone --depth=1 https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
-
 cd $OPENWRT_PATH
 
 ##################################
