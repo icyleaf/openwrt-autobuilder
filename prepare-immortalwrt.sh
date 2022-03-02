@@ -11,8 +11,11 @@ echo "Openwrt path: $OPENWRT_PATH"
 echo ""
 
 echo "Perpare Script [Start]"
+mkdir -p package/icyleaf
 
-git clone --depth=1 https://github.com/pymumu/luci-app-smartdns.git package/luci-app-smartdns
+mkdir -p package/icyleaf/luci-app-smartdns
+git clone --depth=1 https://github.com/pymumu/luci-app-smartdns.git package/icyleaf/luci-app-smartdns
+git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/icyleaf/openwrt-mos
 
 echo ""
 echo "Updating feeds"
