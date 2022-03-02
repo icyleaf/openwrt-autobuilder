@@ -18,7 +18,7 @@ on:
       - '*.sh'
       - 'amd64.config'
       - 'common.config'
-      - '.github/workflows/*-amd64-*.yml'
+      - '.github/workflows/*-amd64-openwrt.yml'
   schedule:
     - cron: '0 5 * * 5'
 
@@ -67,6 +67,9 @@ jobs:
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Launching prepare script
+      env:
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_USER: ${{ github.actor }}
       run: |
         chmod +x $PREPARE_SH
         cd openwrt
@@ -93,7 +96,7 @@ jobs:
       if: env.CHECK_CONFIG == 'true'
       run: |
         chmod +x check_config.sh
-        ./check_config.sh
+        ./check_config.sh common.config
         echo "::set-output name=status::success"
 
     - name: Download package
@@ -173,7 +176,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
+        tag_name: ${{ env.RELEASE_TAG }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
 

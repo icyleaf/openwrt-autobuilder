@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name: Build x86 OpenWrt
+name: Build amd64 immortalwrt
 
 on:
   release:
@@ -16,26 +16,23 @@ on:
       - master
     paths:
       - '*.sh'
-      - 'x86.config'
-      - 'common.config'
-      - '.github/workflows/*-x86-*.yml'
-  schedule:
-    - cron: '0 1 * * 5'
+      - 'amd64.config'
+      - 'common-immortalwrt.config'
+      - '.github/workflows/*-amd64-immortalwrt.yml'
 
 env:
   TZ: Asia/Shanghai
-  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
-  CONFIG_FILE: x86.config
-  PREPARE_SH: prepare.sh
+  CONFIG_FILE: amd64.config
+  PREPARE_SH: prepare-immortalwrt.sh
   POST_INSTALL_SH: post-install.sh
   CHECK_CONFIG: true
-  OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
+  OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_WETRANSFER: false
-  UPLOAD_RELEASE: false
+  UPLOAD_RELEASE: true
 
 jobs:
   build:
@@ -43,10 +40,6 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
-    - name: Get build date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
-
     - name: Checkout
       uses: actions/checkout@master
 
@@ -56,7 +49,7 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
+        sudo -E apt-get -qq install $(curl -fsSL raw.githubusercontent.com/CSJ1987/openwrt-list/master/depends-immortalwrt-1804)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
@@ -71,6 +64,9 @@ jobs:
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Launching prepare script
+      env:
+        GITHUB_REPO: ${{ github.repository }}
+        GITHUB_USER: ${{ github.actor }}
       run: |
         chmod +x $PREPARE_SH
         cd openwrt
@@ -86,17 +82,19 @@ jobs:
     - name: Use .config file
       run: |
         [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
-        cat common.config >> openwrt/.config
+        cat common-immortalwrt.config >> openwrt/.config
         cd openwrt
         make defconfig
         echo "Review .config file"
         cat .config
 
     - name: Check .config file
+      id: check_config
       if: env.CHECK_CONFIG == 'true'
       run: |
         chmod +x check_config.sh
-        ./check_config.sh
+        ./check_config.sh common-immortalwrt.config
+        echo "::set-output name=status::success"
 
     - name: Download package
       id: package
@@ -113,7 +111,7 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)_DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)_DEVICE_(.*)=y/\1_\2/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
@@ -131,7 +129,7 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: ${{ env.FILE_DATE }}_Immortalwrt_${{ env.DEVICE_NAME }}_firmware
         path: openwrt/bin
 
     - name: Organize files
@@ -141,7 +139,7 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         ls
-        rm -f openwrt-x86-generic-generic-kernel.bin openwrt-x86-vmlinuz openwrt-x86-generic-generic-squashfs-rootfs.img.gz
+        rm -f openwrt-x86-64-generic-squashfs-rootfs.img.gz openwrt-x86-64-vmlinuz openwrt-x86-64-generic-kernel.bin
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
 
@@ -149,24 +147,19 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ env.FILE_DATE }}_OpenWrt_${{ env.DEVICE_NAME }}_firmware
+        name: Immortalwrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
-
-    - name: Upload firmware to WeTransfer
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
-      run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
-        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-        echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
 
     - name: Generate release tag
       id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
-        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
+        echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYMMDD-GIT_REF)" >> release.txt
+        echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
+        echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
+        echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
         echo "::set-output name=status::success"
 
     - name: Upload firmware to release
@@ -175,7 +168,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
+        tag_name: ${{ env.RELEASE_TAG }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
 

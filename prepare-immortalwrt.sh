@@ -11,28 +11,16 @@ echo "Openwrt path: $OPENWRT_PATH"
 echo ""
 
 echo "Perpare Script [Start]"
-##################################
-# Custom feed
-##################################
-# echo ""
-# echo "Adding lienol xxx feeds"
-# echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> feeds.conf.default
-
-# echo ""
-# echo "add lean xxx feeds"
-# echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
-
-# echo ""
-# echo "add sundaqiang easyupdate feeds"
-# echo "src-git easyupdate https://github.com/sundaqiang/openwrt-packages.git" >> feeds.conf.default
-
-echo ""
-echo "add kiddin9/openwrt-packages feeds"
-echo "src-git kiddin9 https://github.com/kiddin9/openwrt-packages.git" >> feeds.conf.default
 
 echo ""
 echo "Updating feeds"
 ./scripts/feeds update -a
+
+git clone --depth=1 https://github.com/pymumu/openwrt-smartdns feeds/packages/net/smartdns
+git clone --depth=1 https://github.com/pymumu/luci-app-smartdns.git feeds/luci/applications/luci-app-smartdns
+
+mkdir -p package/icyleaf
+git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/icyleaf/openwrt-mos
 
 echo ""
 echo "Installing feeds"
@@ -46,14 +34,6 @@ echo "Installing feeds"
 # echo "Using luci-theme-argon offical source code"
 # rm -rf package/lean/luci-theme-argon
 # git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
-
-echo ""
-echo "Downloading Custom packages"
-git clone --depth=1 https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
-git clone --depth=1 https://github.com/kongfl888/luci-app-adguardhome.git package/luci-app-adguardhome
-git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/OpenClash
-mv package/OpenClash/luci-app-openclash package/luci-app-openclash
-rm -rf package/OpenClash
 
 cd $OPENWRT_PATH
 
@@ -73,8 +53,8 @@ if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
 fi
 
 echo ""
-echo "Configuring ... luci-app-easyupdate"
-TEMP=$(date +"OpenWrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
+# echo "Configuring ... luci-app-easyupdate"
+TEMP=$(date +"Immortalwrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
 echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
 #required>>add "DISTRIB_GITHUB" to "zzz-default-settings"
 sed -i "/DISTRIB_DESCRIPTION=/a\sed -i '/DISTRIB_GITHUB/d' /etc/openwrt_release" package/lean/default-settings/files/zzz-default-settings
