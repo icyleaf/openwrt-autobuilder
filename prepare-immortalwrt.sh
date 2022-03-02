@@ -47,7 +47,7 @@ if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
 fi
 
 echo ""
-echo "Configuring ... luci-app-easyupdate"
+# echo "Configuring ... luci-app-easyupdate"
 TEMP=$(date +"Immortalwrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
 echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
 #required>>add "DISTRIB_GITHUB" to "zzz-default-settings"
