@@ -32,7 +32,6 @@ env:
   OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_WETRANSFER: false
   UPLOAD_RELEASE: true
 
 jobs:
@@ -130,7 +129,7 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: ${{ env.FILE_DATE }}_OpenWrt_${{ env.DEVICE_NAME }}_firmware
+        name: ${{ env.FILE_DATE }}_Immortalwrt_${{ env.DEVICE_NAME }}_firmware
         path: openwrt/bin
 
     - name: Organize files
@@ -148,16 +147,8 @@ jobs:
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        name: Immortalwrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
-
-    - name: Upload firmware to WeTransfer
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
-      run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
-        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-        echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
 
     - name: Generate release tag
       id: tag
@@ -165,7 +156,10 @@ jobs:
       run: |
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
-        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
+        echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYMMDD-GIT_REF)" >> release.txt
+        echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
+        echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
+        echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
         echo "::set-output name=status::success"
 
     - name: Upload firmware to release
@@ -186,7 +180,7 @@ jobs:
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
         keep_latest: 3
         delete_tags: true

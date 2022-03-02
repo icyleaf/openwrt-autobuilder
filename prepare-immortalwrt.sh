@@ -13,10 +13,6 @@ echo ""
 echo "Perpare Script [Start]"
 
 echo ""
-echo "add sundaqiang easyupdate feeds"
-echo "src-git easyupdate https://github.com/sundaqiang/openwrt-packages.git" >> feeds.conf.default
-
-echo ""
 echo "Updating feeds"
 ./scripts/feeds update -a
 
@@ -52,7 +48,7 @@ fi
 
 echo ""
 echo "Configuring ... luci-app-easyupdate"
-TEMP=$(date +"OpenWrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
+TEMP=$(date +"Immortalwrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
 echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
 #required>>add "DISTRIB_GITHUB" to "zzz-default-settings"
 sed -i "/DISTRIB_DESCRIPTION=/a\sed -i '/DISTRIB_GITHUB/d' /etc/openwrt_release" package/lean/default-settings/files/zzz-default-settings
