@@ -156,7 +156,7 @@ jobs:
       run: |
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
-        echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYMMDD-GIT_REF)" >> release.txt
+        echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYmmdd_HHMMSS_Immortalwrt-GIT-REF)" >> release.txt
         echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
         echo "::set-output name=status::success"
