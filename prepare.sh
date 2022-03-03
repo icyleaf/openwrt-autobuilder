@@ -73,9 +73,13 @@ if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
 fi
 
 echo ""
-echo "Configuring ... luci-app-easyupdate"
+echo "Configuring ... "
+
+echo " -> Tagging RELEASE_TAG"
 TEMP=$(date +"OpenWrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
 echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
+
+echo "-> writing luci-app-easyupdate"
 #required>>add "DISTRIB_GITHUB" to "zzz-default-settings"
 sed -i "/DISTRIB_DESCRIPTION=/a\sed -i '/DISTRIB_GITHUB/d' /etc/openwrt_release" package/lean/default-settings/files/zzz-default-settings
 sed -i "/DISTRIB_GITHUB/a\echo \"DISTRIB_GITHUB=\'https://github.com/${GITHUB_REPO}\'\" >> /etc/openwrt_release" package/lean/default-settings/files/zzz-default-settings
