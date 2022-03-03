@@ -139,7 +139,7 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         ls
-        rm -f openwrt-x86-64-generic-squashfs-rootfs.img.gz openwrt-x86-64-vmlinuz openwrt-x86-64-generic-kernel.bin
+        rm -f immortalwrt-x86-64-generic-squashfs-rootfs.img.gz immortalwrt-x86-64-vmlinuz immortalwrt-x86-64-generic-kernel.bin
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
 
@@ -157,7 +157,6 @@ jobs:
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
         echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYMMDD-GIT_REF)" >> release.txt
-        echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
         echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
         echo "::set-output name=status::success"

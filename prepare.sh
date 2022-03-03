@@ -66,7 +66,7 @@ echo "Configuring ... openwrt"
 sed -i 's/192.168.1.1/10.10.10.1/g' package/base-files/files/bin/config_generate
 
 if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
-  echo "WARN: root password is changed from your secret, make sure you add 'OPENWRT_ROOT_PASSWORD' secret"
+  echo "WARN: root password will change from your secret from 'OPENWRT_ROOT_PASSWORD' secret"
   # Modify password of root if present (encoded password)
   # For example: passwot = $1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.
   sed -i "s|root::0:0:99999:7:::|root:$OPENWRT_ROOT_PASSWORD:0:0:99999:7:::|g" package/base-files/files/etc/shadow
