@@ -26,16 +26,16 @@ echo "Perpare Script [Start]"
 # echo "add sundaqiang easyupdate feeds"
 # echo "src-git easyupdate https://github.com/sundaqiang/openwrt-packages.git" >> feeds.conf.default
 
-echo ""
-echo "add kiddin9/openwrt-packages feeds"
-echo "src-git kiddin9 https://github.com/kiddin9/openwrt-packages.git" >> feeds.conf.default
+# echo ""
+# echo "add kiddin9/openwrt-packages feeds"
+# echo "src-git kiddin9 https://github.com/kiddin9/openwrt-packages.git" >> feeds.conf.default
+
+echo "add kenzok8/openwrt-packages feeds"
+echo "src-git kenzok8 https://github.com/kenzok8/small-package" >> feeds.conf.default
 
 echo ""
 echo "Updating feeds"
 ./scripts/feeds update -a
-
-git clone --depth=1 https://github.com/pymumu/openwrt-smartdns feeds/packages/net/smartdns
-git clone --depth=1 https://github.com/pymumu/luci-app-smartdns.git feeds/luci/applications/luci-app-smartdns
 
 echo ""
 echo "Installing feeds"
