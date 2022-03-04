@@ -34,6 +34,9 @@ echo ""
 echo "Updating feeds"
 ./scripts/feeds update -a
 
+git clone --depth=1 https://github.com/pymumu/openwrt-smartdns feeds/packages/net/smartdns
+git clone --depth=1 https://github.com/pymumu/luci-app-smartdns.git feeds/luci/applications/luci-app-smartdns
+
 echo ""
 echo "Installing feeds"
 ./scripts/feeds install -a
