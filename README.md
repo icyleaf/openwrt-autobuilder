@@ -2,7 +2,7 @@
 
 ![Build amd64 OpenWrt](https://github.com/icyleaf/openwrt-autobuilder/workflows/Build%20amd64%20OpenWrt/badge.svg?branch=master)
 
-Openwrt amd86(x86 64bit) CPU 自動鏡像生成 Based on [P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)
+Openwrt amd64 (x86 64bit) CPU 自動鏡像生成 Based on [P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)
 
 [Read the details in p3terx's blog (in Chinese) | 中文教程](https://p3terx.com/archives/build-openwrt-with-github-actions.html)
 
