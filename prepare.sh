@@ -26,9 +26,12 @@ echo "Perpare Script [Start]"
 # echo "add sundaqiang easyupdate feeds"
 # echo "src-git easyupdate https://github.com/sundaqiang/openwrt-packages.git" >> feeds.conf.default
 
-echo ""
-echo "add kiddin9/openwrt-packages feeds"
-echo "src-git kiddin9 https://github.com/kiddin9/openwrt-packages.git" >> feeds.conf.default
+# echo ""
+# echo "add kiddin9/openwrt-packages feeds"
+# echo "src-git kiddin9 https://github.com/kiddin9/openwrt-packages.git" >> feeds.conf.default
+
+echo "add kenzok8/openwrt-packages feeds"
+echo "src-git kenzok8 https://github.com/kenzok8/small-package" >> feeds.conf.default
 
 echo ""
 echo "Updating feeds"
@@ -73,9 +76,13 @@ if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
 fi
 
 echo ""
-echo "Configuring ... luci-app-easyupdate"
+echo "Configuring ... "
+
+echo " -> Tagging RELEASE_TAG"
 TEMP=$(date +"OpenWrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
 echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
+
+echo "-> writing luci-app-easyupdate"
 #required>>add "DISTRIB_GITHUB" to "zzz-default-settings"
 sed -i "/DISTRIB_DESCRIPTION=/a\sed -i '/DISTRIB_GITHUB/d' /etc/openwrt_release" package/lean/default-settings/files/zzz-default-settings
 sed -i "/DISTRIB_GITHUB/a\echo \"DISTRIB_GITHUB=\'https://github.com/${GITHUB_REPO}\'\" >> /etc/openwrt_release" package/lean/default-settings/files/zzz-default-settings

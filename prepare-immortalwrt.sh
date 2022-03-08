@@ -52,4 +52,10 @@ if [ ! -z "$OPENWRT_ROOT_PASSWORD" ]; then
   sed -i "s|root::0:0:99999:7:::|root:$OPENWRT_ROOT_PASSWORD:0:0:99999:7:::|g" package/base-files/files/etc/shadow
 fi
 
+echo "Configuring ... "
+
+echo " -> Tagging RELEASE_TAG"
+TEMP=$(date +"Immortalwrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
+echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
+
 echo "Perpare Script [End]"
