@@ -20,6 +20,8 @@ on:
       - 'amd64.config'
       - 'common-immortalwrt.config'
       - '.github/workflows/*-amd64-immortalwrt.yml'
+  schedule:
+    - cron: '0 7 * * 5'
 
 env:
   TZ: Asia/Shanghai
