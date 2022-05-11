@@ -21,7 +21,7 @@ git clone --depth=1 https://github.com/pymumu/luci-app-smartdns.git feeds/luci/a
 
 mkdir -p package/icyleaf
 git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/icyleaf/openwrt-mos
-git clone --depth=1 https://github.com/TioaChan/luci-app-adguardhome.git package/icyleaf/luci-app-adguardhome
+# git clone --depth=1 https://github.com/TioaChan/luci-app-adguardhome.git package/icyleaf/luci-app-adguardhome
 
 echo ""
 echo "Installing feeds"
