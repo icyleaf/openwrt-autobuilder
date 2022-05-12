@@ -187,7 +187,7 @@ jobs:
         SHA_VALUE=$(cat openwrt/.git-previous-commit)
         if ! [[ -z "$SHA_VALUE" ]]; then
           echo "Changelogs: " >> release.txt
-          git log --oneline ${SHA_VALUE}..HEAD >> release.txt
+          echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
         fi
 
         echo "::set-output name=status::success"
