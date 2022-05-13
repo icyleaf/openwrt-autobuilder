@@ -184,7 +184,7 @@ jobs:
         echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
 
-        SHA_VALUE=$(cat openwrt/.git-previous-commit)
+        SHA_VALUE=$(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit)
         if ! [[ -z "$SHA_VALUE" ]]; then
           echo "Changelogs: " >> release.txt
           echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
