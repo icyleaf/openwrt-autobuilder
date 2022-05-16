@@ -184,10 +184,12 @@ jobs:
         echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
 
-        SHA_VALUE=$(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit 2> /dev/null)
-        if ! [[ -z "$SHA_VALUE" ]]; then
-          echo "Changelogs: " >> release.txt
-          echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
+        if [[ -d "$GITHUB_WORKSPACE/openwrt/.git-previous-commit" ]]; then
+          SHA_VALUE=$(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit 2> /dev/null)
+          if ! [[ -z "$SHA_VALUE" ]]; then
+            echo "Changelogs: " >> release.txt
+            echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
+          fi
         fi
 
         echo "::set-output name=status::success"
