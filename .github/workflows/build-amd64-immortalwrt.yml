@@ -74,6 +74,16 @@ jobs:
         path: $GITHUB_WORKSPACE/openwrt/.git-previous-commit
         key: ${{ runner.os }}-git-previous-commit
 
+    - name: Delete empty cached git commit
+      if: steps.cache-git-commit.outputs.cache-hit == 'true'
+      run: |
+        if ! [[ -s "$GITHUB_WORKSPACE/openwrt/.git-previous-commit" ]]; then
+          rm -f $GITHUB_WORKSPACE/openwrt/.git-previous-commit
+          echo "Cached file deleted"
+        else
+          echo "Cached git commit is $(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit)"
+        fi
+
     - name: Copy current git commit to previous git commit
       if: steps.cache-git-commit.outputs.cache-hit != 'true'
       run: |
@@ -181,15 +191,13 @@ jobs:
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
         echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYmmdd_HHMMSS_Immortalwrt-GIT-REF)" >> release.txt
-        echo "REPO: $REPO_URL ($REPO_BRANCH) branch" >> release.txt
+        echo "REPO: $REPO_URL/tree/$REPO_BRANCH" >> release.txt
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
 
-        if [[ -d "$GITHUB_WORKSPACE/openwrt/.git-previous-commit" ]]; then
+        if [[ -s "$GITHUB_WORKSPACE/openwrt/.git-previous-commit" ]]; then
           SHA_VALUE=$(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit 2> /dev/null)
-          if ! [[ -z "$SHA_VALUE" ]]; then
-            echo "Changelogs: " >> release.txt
-            echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
-          fi
+          echo "Changelogs: " >> release.txt
+          echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
         fi
 
         echo "::set-output name=status::success"
