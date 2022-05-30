@@ -66,13 +66,24 @@ jobs:
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
+    - name: Fetch openwrt git commit
+      id: openwrt-git-commit
+      working-directory: /workdir
+      run: |
+        cd $GITHUB_WORKSPACE/openwrt
+        GIT_SHA=$(git rev-parse HEAD)
+        echo "openwrt git commit: ${GIT_SHA}"
+        echo "::set-output name=sha::${GIT_SHA}"
+
     # GitHub 将删除 7 天内未被访问的任何缓存条目
     - name: Fetch cached git commit
       uses: actions/cache@v3
       id: cache-git-commit
       with:
         path: $GITHUB_WORKSPACE/openwrt/.git-previous-commit
-        key: ${{ runner.os }}-git-previous-commit
+        key: ${{ runner.os }}-openwrt-git-commit-${{ steps.openwrt-git-commit.outputs.sha }}
+        restore-keys: |
+          ${{ runner.os }}-openwrt-git-commit-
 
     - name: Delete empty cached git commit
       if: steps.cache-git-commit.outputs.cache-hit == 'true'
@@ -87,15 +98,16 @@ jobs:
     - name: Copy current git commit to previous git commit
       if: steps.cache-git-commit.outputs.cache-hit != 'true'
       run: |
-        cd $GITHUB_WORKSPACE/openwrt
-        git rev-parse HEAD > .git-previous-commit
+        echo "${{ steps.openwrt-git-commit.outputs.sha }}" > .git-previous-commit
 
     - name: Store git commit
       uses: actions/cache@v3
       if: steps.cache-git-commit.outputs.cache-hit != 'true'
       with:
         path: $GITHUB_WORKSPACE/openwrt/.git-previous-commit
-        key: ${{ runner.os }}-git-previous-commit
+        key: ${{ runner.os }}-openwrt-git-commit-${{ steps.openwrt-git-commit.outputs.sha }}
+        restore-keys: |
+          ${{ runner.os }}-openwrt-git-commit-
 
     - name: Launching prepare script
       env:
@@ -194,11 +206,12 @@ jobs:
         echo "REPO: $REPO_URL/tree/$REPO_BRANCH" >> release.txt
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
 
+        echo "Changelogs: " >> release.txt
+        SHA_VALUE=${{ steps.openwrt-git-commit.outputs.sha }}
         if [[ -s "$GITHUB_WORKSPACE/openwrt/.git-previous-commit" ]]; then
           SHA_VALUE=$(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit 2> /dev/null)
-          echo "Changelogs: " >> release.txt
-          echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
         fi
+        echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
 
         echo "::set-output name=status::success"
 
