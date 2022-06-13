@@ -77,6 +77,19 @@ jobs:
 
     - name: Fetch cached git commit
       uses: zentered/cloudflare-kv-action@v1.0.0
+      id: fetch-cached-git-commit
+      env:
+        CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+        CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      with:
+        namespace_identifier: ${{ secrets.CLOUDFLARE_KV_NAMESPACE }}
+        key_name: ${{ runner.os }}-immortalwrt-git-commit
+        value: ${{ steps.openwrt-git-commit.outputs.sha }}
+        
+    - name: Store cached git commit
+      uses: zentered/cloudflare-kv-action@v1.0.0
+      if: steps.fetch-cached-git-commit.outputs.value == '' || steps.fetch-cached-git-commit.outputs.value == 'false'
       id: cache-git-commit
       env:
         CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
