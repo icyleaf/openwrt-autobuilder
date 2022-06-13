@@ -75,39 +75,17 @@ jobs:
         echo "openwrt git commit: ${GIT_SHA}"
         echo "::set-output name=sha::${GIT_SHA}"
 
-    # GitHub 将删除 7 天内未被访问的任何缓存条目
     - name: Fetch cached git commit
-      uses: actions/cache@v3
+      uses: zentered/cloudflare-kv-action@v1.0.0
       id: cache-git-commit
+      env:
+        CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+        CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       with:
-        path: $GITHUB_WORKSPACE/openwrt/.git-previous-commit
-        key: ${{ runner.os }}-openwrt-git-commit-${{ steps.openwrt-git-commit.outputs.sha }}
-        restore-keys: |
-          ${{ runner.os }}-openwrt-git-commit-
-
-    - name: Delete empty cached git commit
-      if: steps.cache-git-commit.outputs.cache-hit == 'true'
-      run: |
-        if ! [[ -s "$GITHUB_WORKSPACE/openwrt/.git-previous-commit" ]]; then
-          rm -f $GITHUB_WORKSPACE/openwrt/.git-previous-commit
-          echo "Cached file deleted"
-        else
-          echo "Cached git commit is $(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit)"
-        fi
-
-    - name: Copy current git commit to previous git commit
-      if: steps.cache-git-commit.outputs.cache-hit != 'true'
-      run: |
-        echo "${{ steps.openwrt-git-commit.outputs.sha }}" > .git-previous-commit
-
-    - name: Store git commit
-      uses: actions/cache@v3
-      if: steps.cache-git-commit.outputs.cache-hit != 'true'
-      with:
-        path: $GITHUB_WORKSPACE/openwrt/.git-previous-commit
-        key: ${{ runner.os }}-openwrt-git-commit-${{ steps.openwrt-git-commit.outputs.sha }}
-        restore-keys: |
-          ${{ runner.os }}-openwrt-git-commit-
+        namespace_identifier: '123'
+        key_name: ${{ runner.os }}-immortalwrt-git-commit
+        value: ${{ steps.openwrt-git-commit.outputs.sha }}
 
     - name: Launching prepare script
       env:
@@ -207,9 +185,9 @@ jobs:
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
 
         echo "Changelogs: " >> release.txt
-        SHA_VALUE=${{ steps.openwrt-git-commit.outputs.sha }}
-        if [[ -s "$GITHUB_WORKSPACE/openwrt/.git-previous-commit" ]]; then
-          SHA_VALUE=$(cat $GITHUB_WORKSPACE/openwrt/.git-previous-commit 2> /dev/null)
+        SHA_VALUE=${{ steps.cache-git-commit.outputs.value }}
+        if [[ -z "$SHA_VALUE" ]]; then
+          SHA_VALUE=${{ steps.openwrt-git-commit.outputs.sha }}
         fi
         echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
 
