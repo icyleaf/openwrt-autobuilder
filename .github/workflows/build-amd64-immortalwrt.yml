@@ -83,7 +83,7 @@ jobs:
         CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       with:
-        namespace_identifier: '123'
+        namespace_identifier: github-openwrt-autobuilder
         key_name: ${{ runner.os }}-immortalwrt-git-commit
         value: ${{ steps.openwrt-git-commit.outputs.sha }}
 
