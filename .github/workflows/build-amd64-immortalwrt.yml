@@ -83,11 +83,10 @@ jobs:
         CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       with:
-        namespace_identifier: ${{ secrets.CLOUDFLARE_KV_NAMESPACE }}
+        namespace_identifier: 85998721d36c4232b1c4939644d3a791
         key_name: ${{ runner.os }}-immortalwrt-git-commit
-        value: ${{ steps.openwrt-git-commit.outputs.sha }}
         
-    - name: Store cached git commit
+    - name: Store cached git commit if not exists
       uses: zentered/cloudflare-kv-action@v1.0.0
       if: steps.fetch-cached-git-commit.outputs.value == '' || steps.fetch-cached-git-commit.outputs.value == 'false'
       id: cache-git-commit
@@ -96,7 +95,7 @@ jobs:
         CLOUDFLARE_ACCOUNT_EMAIL: ${{ secrets.CLOUDFLARE_ACCOUNT_EMAIL }}
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       with:
-        namespace_identifier: ${{ secrets.CLOUDFLARE_KV_NAMESPACE }}
+        namespace_identifier: 85998721d36c4232b1c4939644d3a791
         key_name: ${{ runner.os }}-immortalwrt-git-commit
         value: ${{ steps.openwrt-git-commit.outputs.sha }}
 
