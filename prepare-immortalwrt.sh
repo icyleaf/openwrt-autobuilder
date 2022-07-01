@@ -17,7 +17,9 @@ echo "Updating feeds"
 ./scripts/feeds update -a
 
 mkdir -p package/icyleaf
-git clone --depth=1 https://github.com/QiuSimons/openwrt-mos.git package/icyleaf/openwrt-mos
+git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/icyleaf/luci-app-mosdns
+git clone --depth=1 https://github.com/sbwml/v2ray-geodata package/icyleaf/v2ray-geodata
+rm -rf package/icyleaf/luci-app-mosdns/mosdns
 
 echo ""
 echo "Installing feeds"
