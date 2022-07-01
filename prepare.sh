@@ -14,22 +14,6 @@ echo "Perpare Script [Start]"
 ##################################
 # Custom feed
 ##################################
-# echo ""
-# echo "Adding lienol xxx feeds"
-# echo "src-git passwall https://github.com/xiaorouji/openwrt-passwall.git" >> feeds.conf.default
-
-# echo ""
-# echo "add lean xxx feeds"
-# echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
-
-# echo ""
-# echo "add sundaqiang easyupdate feeds"
-# echo "src-git easyupdate https://github.com/sundaqiang/openwrt-packages.git" >> feeds.conf.default
-
-# echo ""
-# echo "add kiddin9/openwrt-packages feeds"
-# echo "src-git kiddin9 https://github.com/kiddin9/openwrt-packages.git" >> feeds.conf.default
-
 echo "add kenzok8/openwrt-packages feeds"
 echo "src-git kenzok8 https://github.com/kenzok8/small-package" >> feeds.conf.default
 
