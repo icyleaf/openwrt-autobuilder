@@ -13,8 +13,12 @@ echo ""
 echo "Perpare Script [Start]"
 
 echo ""
+echo "Add custom packages feed"
+echo "src-git custom https://github.com/icyleaf/openwrt-packages.git" >> feeds.conf.default
+
+echo ""
 echo "Updating feeds"
-./scripts/feeds update -a
+./scripts/feeds update -a -p custom
 
 mkdir -p package/icyleaf
 git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/icyleaf/luci-app-mosdns
@@ -24,6 +28,9 @@ rm -rf package/icyleaf/luci-app-mosdns/mosdns
 echo ""
 echo "Installing feeds"
 ./scripts/feeds install -a
+
+# Remove old version packages (custom packages)
+rm -rf package/feed/packages/tailscale
 
 ##################################
 # Custom package
