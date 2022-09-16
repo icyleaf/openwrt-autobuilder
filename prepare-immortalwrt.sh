@@ -17,13 +17,18 @@ echo "Add custom packages feed"
 echo "src-git custom https://github.com/icyleaf/openwrt-packages.git" >> feeds.conf.default
 
 echo ""
+echo "Add NueXini packages feed"
+echo "src-git nuexini https://github.com/NueXini/NueXini_Packages" >> feeds.conf.default
+
+echo ""
 echo "Updating feeds"
 ./scripts/feeds update -a -p custom
+./scripts/feeds update -a -p nuexini
 
-mkdir -p package/icyleaf
-git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/icyleaf/luci-app-mosdns
-git clone --depth=1 https://github.com/sbwml/v2ray-geodata package/icyleaf/v2ray-geodata
-rm -rf package/icyleaf/luci-app-mosdns/mosdns
+# mkdir -p package/icyleaf
+# git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/icyleaf/luci-app-mosdns
+# git clone --depth=1 https://github.com/sbwml/v2ray-geodata package/icyleaf/v2ray-geodata
+# rm -rf package/icyleaf/luci-app-mosdns/mosdns
 
 echo ""
 echo "Installing feeds"
