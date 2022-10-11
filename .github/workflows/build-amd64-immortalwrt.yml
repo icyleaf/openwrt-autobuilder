@@ -201,7 +201,7 @@ jobs:
         if [[ -z "$SHA_VALUE" ]]; then
           SHA_VALUE=${{ steps.openwrt-git-commit.outputs.sha }}
         fi
-        echo "${REPO_URL}/compare/${SHA_VALUE}...${REPO_BRANCH}" >> release.txt
+        echo "${REPO_URL}/compare/${SHA_VALUE}...${{ steps.openwrt-git-commit.outputs.sha }}" >> release.txt
 
         echo "::set-output name=status::success"
 
