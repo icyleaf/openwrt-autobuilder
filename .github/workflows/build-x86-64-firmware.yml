@@ -65,6 +65,11 @@ jobs:
       - name: Generate Toolchain Config
         working-directory: ${{ steps.openwrt_path.value }}
         run: |
+          echo $PWD
+          ls
+          echo "${GITHUB_WORKSPACE}"
+          echo ${{ github.workspace }}
+
           [ -e "${GITHUB_WORKSPACE}/${CONFIG_FILE}" ] && mv "${GITHUB_WORKSPACE}/${CONFIG_FILE}" .config
           cat "${GITHUB_WORKSPACE}/immortalwrt.config" >> .config
           echo -e "\nCONFIG_ALL=y" >> .config
