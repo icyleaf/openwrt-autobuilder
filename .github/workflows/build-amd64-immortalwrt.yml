@@ -73,7 +73,7 @@ jobs:
         cd $GITHUB_WORKSPACE/openwrt
         GIT_SHA=$(git rev-parse HEAD)
         echo "openwrt git commit: ${GIT_SHA}"
-        echo "::set-output name=sha::${GIT_SHA}"
+        echo "sha=${GIT_SHA}" >> $GITHUB_OUTPUT
 
     - name: Fetch cached git commit else store it
       uses: icyleaf/cloudflare-workers-kv-action@main
@@ -126,7 +126,7 @@ jobs:
       run: |
         chmod +x check_config.sh
         ./check_config.sh common-immortalwrt.config
-        echo "::set-output name=status::success"
+        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Download package
       id: package
@@ -142,7 +142,7 @@ jobs:
         cd $GITHUB_WORKSPACE/openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
-        echo "::set-output name=status::success"
+        echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)_DEVICE_(.*)=y/\1_\2/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -173,7 +173,7 @@ jobs:
         ls
         rm -f immortalwrt-x86-64-generic-squashfs-rootfs.img.gz immortalwrt-x86-64-vmlinuz immortalwrt-x86-64-generic-kernel.bin
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "::set-output name=status::success"
+        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware directory
       uses: actions/upload-artifact@master
@@ -186,7 +186,8 @@ jobs:
       id: tag
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
-        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+        echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
+
         touch release.txt
         echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYmmdd_HHMMSS_Immortalwrt-GIT-REF)" >> release.txt
         echo "REPO: $REPO_URL/tree/$REPO_BRANCH" >> release.txt
@@ -199,7 +200,7 @@ jobs:
         fi
         echo "${REPO_URL}/compare/${SHA_VALUE}...${{ steps.openwrt-git-commit.outputs.sha }}" >> release.txt
 
-        echo "::set-output name=status::success"
+        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware to release
       id: upload-firmware
