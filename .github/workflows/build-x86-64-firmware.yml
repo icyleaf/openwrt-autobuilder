@@ -13,12 +13,16 @@ env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
-  CONFIG_FILE: amd64.config
+  PLATFORM_FILE: amd64.config
+  CONFIG_FILE: immortalwrt.config
+  CHECK_CONFIG: true
+
   PREPARE_SH: prepare.sh
   POST_INSTALL_SH: post-install.sh
-  CHECK_CONFIG: true
+
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
   OPENWRT_ROOT_PASSWORD: ${{ secrets.OPENWRT_ROOT_PASSWORD }}
+
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -45,27 +49,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone source Code
+      - name: Fetch openwrt source code
         run: |
           df -hT $PWD
           git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          echo "OPENWRT_GIT_REF=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Generate Toolchain Config
         working-directory: ${{ env.OPENWRT_PATH }}
         run: |
-          COMMON_CONFIG="${GITHUB_WORKSPACE}/${CONFIG_FILE}"
-          DIFF_CONFIG="${GITHUB_WORKSPACE}/immortalwrt.config"
+          PLATFORM_PATH="${GITHUB_WORKSPACE}/${PLATFORM_FILE}"
+          CONFIG_PATH="${GITHUB_WORKSPACE}/${CONFIG_FILE}"
 
-          [ -e $COMMON_CONFIG ] && mv $COMMON_CONFIG .config
-          [ -e $DIFF_CONFIG ] && cat $DIFF_CONFIG >> .config
+          [ -e $PLATFORM_PATH ] && mv $PLATFORM_PATH .config
+          [ -e $CONFIG_PATH ] && cat $CONFIG_PATH >> .config
 
           echo -e "\nCONFIG_ALL=y" >> .config
           echo -e "\nCONFIG_ALL_NONSHARED=y" >> .config
           make defconfig > /dev/null 2>&1
 
+      - name: Cache Toolchain
+        id: cache-toolchain
+        uses: actions/cache@v3
+        with:
+          path: toolchain
+          key: ${{ runner.os }}-opwnert-toolchain-${{ env.OPENWRT_GIT_REF }}
+          restore-keys: |
+            ${{ runner.os }}-opwnert-toolchain-
+
       - name: Install Feeds
+        if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         working-directory: ${{ env.OPENWRT_PATH }}
         run: |
           ./scripts/feeds update -a
@@ -73,219 +88,50 @@ jobs:
           make defconfig
 
       - name: Compile Tools
+        if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         working-directory: ${{ env.OPENWRT_PATH }}
         run: |
           echo -e "$(nproc) thread compile"
           make tools/compile -j$(nproc) || make tools/compile -j1 V=s
 
       - name: Compile Toolchain
+        if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         working-directory: ${{ env.OPENWRT_PATH }}
         run: |
           echo -e "$(nproc) thread compile"
           make toolchain/compile -j$(nproc) || make toolchain/compile -j1 V=s
           rm -rf .config* dl bin
-          echo "TOOLCHAIN_IMAGE=toolchain-$SOURCE_OWNER-$SOURCE_REPO-$SOURCE_BRANCH-$DEVICE_TARGET-$DEVICE_SUBTARGET" >> $GITHUB_ENV
 
       - name: Generate Toolchain Image
         working-directory: ${{ github.workspace }}
         run: |
           mksquashfs openwrt $TOOLCHAIN_IMAGE -force-gid 1001 -force-uid 1001 -comp zstd
-          mkdir -p output
-          split -d -b 1900M $TOOLCHAIN_IMAGE $GITHUB_WORKSPACE/output/$TOOLCHAIN_IMAGE.img.
+          mkdir -p toolchain
+          split -d -b 1900M $TOOLCHAIN_IMAGE toolchain/$TOOLCHAIN_IMAGE.img.
           rm $TOOLCHAIN_IMAGE
 
-      - name: Upload Toolchain Image To Artifact
-        uses: actions/upload-artifact@main
-        with:
-          name: ${{ env.TOOLCHAIN_IMAGE }}
-          path: output
+      # - name: Upload Toolchain Image To Artifact
+      #   uses: actions/upload-artifact@main
+      #   with:
+      #     name: ${{ env.TOOLCHAIN_IMAGE }}
+      #     path: toolchain
 
-      - name: Delete Old Toolchain Assets From Release
-        uses: mknejp/delete-release-assets@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.TOOLCHAIN_TAG }}
-          assets: "toolchain-${{ env.TOOLCHAIN_IMAGE }}.*"
-          fail-if-no-assets: false
-          fail-if-no-release: false
+      # - name: Delete Old Toolchain Assets From Release
+      #   uses: mknejp/delete-release-assets@v1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     tag: ${{ env.TOOLCHAIN_TAG }}
+      #     assets: "toolchain-${{ env.TOOLCHAIN_IMAGE }}.*"
+      #     fail-if-no-assets: false
+      #     fail-if-no-release: false
 
-      - name: Upload Toolchain Image To Release
-        uses: ncipollo/release-action@v1.8.0
-        with:
-          name: toolchain-image
-          allowUpdates: true
-          replacesArtifacts: true
-          commit: ${{ github.ref_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.TOOLCHAIN_TAG }}
-          artifacts: output/*
-
-
-  # build:
-  #   runs-on: ubuntu-20.04
-  #   if: github.event.repository.owner.id == github.event.sender.id
-
-  #   steps:
-
-  #   - name: Clone source code
-  #     working-directory: /workdir
-  #     run: |
-  #       df -hT $PWD
-  #       git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-  #       ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-
-  #   - name: Fetch openwrt git commit
-  #     id: openwrt-git-commit
-  #     working-directory: /workdir
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/openwrt
-  #       GIT_SHA=$(git rev-parse HEAD)
-  #       echo "openwrt git commit: ${GIT_SHA}"
-  #       echo "sha=${GIT_SHA}" >> $GITHUB_OUTPUT
-
-  #   - name: Fetch cached git commit else store it
-  #     uses: icyleaf/cloudflare-workers-kv-action@main
-  #     id: cache-git-commit
-  #     env:
-  #       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  #       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  #     with:
-  #       namespace_id: 85998721d36c4232b1c4939644d3a791
-  #       key: ${{ runner.os }}-immortalwrt-git-commit
-  #       value: ${{ steps.openwrt-git-commit.outputs.sha }}
-
-  #   - name: Store current git commit
-  #     uses: icyleaf/cloudflare-workers-kv-action@main
-  #     if: steps.openwrt-git-commit.outputs.sha != steps.cache-git-commit.outputs.value
-  #     env:
-  #       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  #       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  #     with:
-  #       namespace_id: 85998721d36c4232b1c4939644d3a791
-  #       key: ${{ runner.os }}-immortalwrt-git-commit
-  #       value: ${{ steps.openwrt-git-commit.outputs.sha }}
-  #       overwrite: true
-
-  #   - name: Launching prepare script
-  #     env:
-  #       GITHUB_REPO: ${{ github.repository }}
-  #       GITHUB_USER: ${{ github.actor }}
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/openwrt
-  #       chmod +x $GITHUB_WORKSPACE/$PREPARE_SH
-  #       $GITHUB_WORKSPACE/$PREPARE_SH
-
-  #   - name: SSH connection to Actions
-  #     uses: mxschmitt/action-tmate@v3
-  #     if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-
-  #   - name: Use .config file
-  #     run: |
-  #       [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
-  #       cat immortalwrt.config >> openwrt/.config
-  #       cd $GITHUB_WORKSPACE/openwrt
-  #       make defconfig
-  #       echo "Review .config file"
-  #       cat .config
-
-  #   - name: Check .config file
-  #     id: check_config
-  #     if: env.CHECK_CONFIG == 'true'
-  #     run: |
-  #       chmod +x check_config.sh
-  #       ./check_config.sh immortalwrt.config
-  #       echo "status=success" >> $GITHUB_OUTPUT
-
-  #   - name: Download package
-  #     id: package
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/openwrt
-  #       make download -j8
-  #       find dl -size -1024c -exec ls -l {} \;
-  #       find dl -size -1024c -exec rm -f {} \;
-
-  #   - name: Compile the firmware
-  #     id: compile
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/openwrt
-  #       echo -e "$(nproc) thread compile"
-  #       make -j$(nproc) || make -j1 || make -j1 V=s
-  #       echo "status=success" >> $GITHUB_OUTPUT
-  #       grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/CONFIG_TARGET_(.*)_DEVICE_(.*)=y/\1_\2/' > DEVICE_NAME
-  #       [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
-  #       echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-
-  #   - name: Check space usage
-  #     if: (!cancelled())
-  #     run: df -hT
-
-  #   - name: Launching post-install script
-  #     run: |
-  #       chmod +x $POST_INSTALL_SH
-  #       cd $GITHUB_WORKSPACE/openwrt
-  #       $GITHUB_WORKSPACE/$POST_INSTALL_SH
-
-  #   - name: Upload bin directory
-  #     uses: actions/upload-artifact@master
-  #     if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
-  #     with:
-  #       name: ${{ env.FILE_DATE }}_Immortalwrt_${{ env.DEVICE_NAME }}_firmware
-  #       path: openwrt/bin
-
-  #   - name: Organize files
-  #     id: organize
-  #     if: steps.compile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-  #     run: |
-  #       cd $GITHUB_WORKSPACE/openwrt/bin/targets/*/*
-  #       rm -rf packages
-  #       ls
-  #       rm -f immortalwrt-x86-64-generic-squashfs-rootfs.img.gz immortalwrt-x86-64-vmlinuz immortalwrt-x86-64-generic-kernel.bin
-  #       echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-  #       echo "status=success" >> $GITHUB_OUTPUT
-
-  #   - name: Upload firmware directory
-  #     uses: actions/upload-artifact@master
-  #     if: steps.organize.outputs.status == 'success' && !cancelled()
-  #     with:
-  #       name: Immortalwrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-  #       path: ${{ env.FIRMWARE }}
-
-  #   - name: Generate release tag
-  #     id: tag
-  #     if: steps.compile.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
-  #     run: |
-  #       echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
-
-  #       touch release.txt
-  #       echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYmmdd_HHMMSS_Immortalwrt-GIT-REF)" >> release.txt
-  #       echo "REPO: $REPO_URL/tree/$REPO_BRANCH" >> release.txt
-  #       echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
-
-  #       echo "Changelogs: " >> release.txt
-  #       SHA_VALUE=${{ steps.cache-git-commit.outputs.value }}
-  #       if [[ -z "$SHA_VALUE" ]]; then
-  #         SHA_VALUE=${{ steps.openwrt-git-commit.outputs.sha }}
-  #       fi
-  #       echo "${REPO_URL}/compare/${SHA_VALUE}...${{ steps.openwrt-git-commit.outputs.sha }}" >> release.txt
-
-  #       echo "status=success" >> $GITHUB_OUTPUT
-
-  #   - name: Upload firmware to release
-  #     id: upload-firmware
-  #     uses: softprops/action-gh-release@v1
-  #     if: steps.tag.outputs.status == 'success' && !cancelled()
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     with:
-  #       tag_name: ${{ env.RELEASE_TAG }}
-  #       body_path: release.txt
-  #       files: ${{ env.FIRMWARE }}/*
-
-  #   - name: Remove old Releases
-  #     uses: wow-actions/delete-stale-releases@v1
-  #     if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-  #     with:
-  #       github_token: ${{ secrets.GITHUB_TOKEN }}
-  #       keep_latest_count: 3
-  #       delete_tags: true
-  #       key: Immortalwrt
+      # - name: Upload Toolchain Image To Release
+      #   uses: ncipollo/release-action@v1.8.0
+      #   with:
+      #     name: toolchain-image
+      #     allowUpdates: true
+      #     replacesArtifacts: true
+      #     commit: ${{ github.ref_name }}
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     tag: ${{ env.TOOLCHAIN_TAG }}
+      #     artifacts: output/*
