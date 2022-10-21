@@ -22,7 +22,6 @@ on:
       - '.github/workflows/*-amd64-immortalwrt.yml'
   schedule:
     - cron: '0 1 * * 5'
-  workflow_dispatch:
 
 env:
   TZ: Asia/Shanghai
