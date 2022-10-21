@@ -76,7 +76,7 @@ jobs:
         echo "::set-output name=sha::${GIT_SHA}"
 
     - name: Fetch cached git commit else store it
-      uses: icyleaf/cloudflare-workers-kv-action@v0.1.0
+      uses: icyleaf/cloudflare-workers-kv-action@main
       id: cache-git-commit
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
         value: ${{ steps.openwrt-git-commit.outputs.sha }}
 
     - name: Store current git commit
-      uses: icyleaf/cloudflare-workers-kv-action@v0.1.0
+      uses: icyleaf/cloudflare-workers-kv-action@main
       if: steps.openwrt-git-commit.outputs.sha != steps.cache-git-commit.outputs.value
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -108,11 +108,8 @@ jobs:
         $GITHUB_WORKSPACE/$PREPARE_SH
 
     - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@v1.0.0
+      uses: mxschmitt/action-tmate@v3
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-      env:
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
     - name: Use .config file
       run: |
@@ -216,11 +213,10 @@ jobs:
         files: ${{ env.FIRMWARE }}/*
 
     - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@v0.2.0
+      uses: wow-actions/delete-stale-releases@v1
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 3
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        keep_latest_count: 3
         delete_tags: true
-        delete_tag_pattern: Immortalwrt
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        key: Immortalwrt
