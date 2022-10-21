@@ -15,13 +15,7 @@ on:
     branches:
       - master
     paths:
-      - 'prepare.sh'
-      - 'post-install.sh'
-      - 'amd64.config'
-      - 'immortalwrt.config'
-      - '.github/workflows/*-amd64-immortalwrt.yml'
-  schedule:
-    - cron: '0 1 * * 5'
+      - '.github/workflows/build-x86-64-firmware.yml'
 
 env:
   TZ: Asia/Shanghai
@@ -71,7 +65,7 @@ jobs:
       - name: Generate Toolchain Config
         working-directory: ${{ steps.openwrt_path.value }}
         run: |
-          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE .config
+          [ -e "${GITHUB_WORKSPACE}/${CONFIG_FILE}" ] && mv "${GITHUB_WORKSPACE}/${CONFIG_FILE}" .config
           cat "${GITHUB_WORKSPACE}/immortalwrt.config" >> .config
           echo -e "\nCONFIG_ALL=y" >> .config
           echo -e "\nCONFIG_ALL_NONSHARED=y" >> .config
