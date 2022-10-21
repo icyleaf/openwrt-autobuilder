@@ -15,10 +15,10 @@ on:
     branches:
       - master
     paths:
-      - '*-immortalwrt.sh'
+      - 'prepare.sh'
       - 'post-install.sh'
       - 'amd64.config'
-      - 'common-immortalwrt.config'
+      - 'immortalwrt.config'
       - '.github/workflows/*-amd64-immortalwrt.yml'
   schedule:
     - cron: '0 1 * * 5'
@@ -28,7 +28,7 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
   CONFIG_FILE: amd64.config
-  PREPARE_SH: prepare-immortalwrt.sh
+  PREPARE_SH: prepare.sh
   POST_INSTALL_SH: post-install.sh
   CHECK_CONFIG: true
   SSH_ACTIONS: ${{ secrets.OPENWRT_ENABLE_SSH }}
@@ -114,7 +114,7 @@ jobs:
     - name: Use .config file
       run: |
         [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
-        cat common-immortalwrt.config >> openwrt/.config
+        cat immortalwrt.config >> openwrt/.config
         cd $GITHUB_WORKSPACE/openwrt
         make defconfig
         echo "Review .config file"
@@ -125,7 +125,7 @@ jobs:
       if: env.CHECK_CONFIG == 'true'
       run: |
         chmod +x check_config.sh
-        ./check_config.sh common-immortalwrt.config
+        ./check_config.sh immortalwrt.config
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Download package

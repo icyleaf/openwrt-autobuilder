@@ -1,6 +1,5 @@
 # OpenWrt-AutoBuilder
 
-![Build amd64 Lede](https://github.com/icyleaf/openwrt-autobuilder/workflows/Build%20amd64%20OpenWrt/badge.svg?branch=master)
 ![Build amd64 immortalwrt](https://github.com/icyleaf/openwrt-autobuilder/actions/workflows/build-amd64-immortalwrt.yml/badge.svg?branch=master)
 
 Openwrt amd64 (x86 64bit) CPU 自動鏡像生成 Based on [P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt)
