@@ -49,65 +49,58 @@ jobs:
           sudo -E apt-get -qq clean
           sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           docker image prune -a -f
-          mkdir -p workspace
 
       - name: Checkout
         uses: actions/checkout@main
 
       - name: Clone source Code
-        id: openwrt_path
         run: |
           df -hT $PWD
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH workspace/openwrt
-          cd workspace/openwrt
-          echo "value=$PWD" >> $GITHUB_OUTPUT
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
       - name: Generate Toolchain Config
-        working-directory: ${{ steps.openwrt_path.value }}
+        working-directory: ${{ env.OPENWRT_PATH }}
         run: |
-          echo $PWD
-          ls
-          echo "${GITHUB_WORKSPACE}"
-          echo ${{ github.workspace }}
+          COMMON_CONFIG="${GITHUB_WORKSPACE}/${CONFIG_FILE}"
+          DIFF_CONFIG="${GITHUB_WORKSPACE}/immortalwrt.config"
 
-          [ -e "${GITHUB_WORKSPACE}/${CONFIG_FILE}" ] && mv "${GITHUB_WORKSPACE}/${CONFIG_FILE}" .config
-          cat "${GITHUB_WORKSPACE}/immortalwrt.config" >> .config
+          [ -e $COMMON_CONFIG ] && mv $COMMON_CONFIG .config
+          [ -e $DIFF_CONFIG ] && cat $DIFF_CONFIG >> .config
+
           echo -e "\nCONFIG_ALL=y" >> .config
           echo -e "\nCONFIG_ALL_NONSHARED=y" >> .config
           make defconfig > /dev/null 2>&1
 
       - name: Install Feeds
-        working-directory: ${{ steps.openwrt_path.value }}
+        working-directory: ${{ env.OPENWRT_PATH }}
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           make defconfig
 
       - name: Compile Tools
-        working-directory: ${{ steps.openwrt_path.value }}
+        working-directory: ${{ env.OPENWRT_PATH }}
         run: |
           echo -e "$(nproc) thread compile"
           make tools/compile -j$(nproc) || make tools/compile -j1 V=s
 
       - name: Compile Toolchain
-        working-directory: ${{ steps.openwrt_path.value }}
+        working-directory: ${{ env.OPENWRT_PATH }}
         run: |
-          cd $OPENWRT_ROOT_PATH
           echo -e "$(nproc) thread compile"
           make toolchain/compile -j$(nproc) || make toolchain/compile -j1 V=s
           rm -rf .config* dl bin
           echo "TOOLCHAIN_IMAGE=toolchain-$SOURCE_OWNER-$SOURCE_REPO-$SOURCE_BRANCH-$DEVICE_TARGET-$DEVICE_SUBTARGET" >> $GITHUB_ENV
 
       - name: Generate Toolchain Image
-        working-directory: ${{ steps.openwrt_path.value }}/../
+        working-directory: ${{ github.workspace }}
         run: |
           mksquashfs openwrt $TOOLCHAIN_IMAGE -force-gid 1001 -force-uid 1001 -comp zstd
-          mkdir -p $GITHUB_WORKSPACE/output
+          mkdir -p output
           split -d -b 1900M $TOOLCHAIN_IMAGE $GITHUB_WORKSPACE/output/$TOOLCHAIN_IMAGE.img.
           rm $TOOLCHAIN_IMAGE
-
-          cd ${{ steps.openwrt_path.value }}
-          ls -lh $GITHUB_WORKSPACE/output
 
       - name: Upload Toolchain Image To Artifact
         uses: actions/upload-artifact@main
