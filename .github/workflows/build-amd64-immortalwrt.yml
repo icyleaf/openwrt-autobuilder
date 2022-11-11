@@ -170,7 +170,6 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/openwrt/bin/targets/*/*
         rm -rf packages
-        ls
         rm -f immortalwrt-x86-64-generic-squashfs-rootfs.img.gz immortalwrt-x86-64-vmlinuz immortalwrt-x86-64-generic-kernel.bin
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
