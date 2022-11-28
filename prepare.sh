@@ -44,7 +44,11 @@ rm -rf package/feed/packages/tailscale
 # Custom package
 ##################################
 
-# echo ""
+echo ""
+echo "Downloading Custom packages"
+
+git clone --depth=1 -b master https://github.com/gSpotx2f/luci-app-log.git package/luci-app-log
+
 # echo "Using luci-theme-argon offical source code"
 # rm -rf package/lean/luci-theme-argon
 # git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
