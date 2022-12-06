@@ -1,12 +1,5 @@
 name: Remove old workflows
 on:
-  workflow_run:
-    workflows:
-      - "Build x86-64 Firmware"
-      - "Build amd64 immortalwrt"
-    types:
-      - completed
-
   workflow_dispatch:
     inputs:
       days:
