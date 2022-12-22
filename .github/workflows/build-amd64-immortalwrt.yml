@@ -208,12 +208,3 @@ jobs:
         tag_name: ${{ env.RELEASE_TAG }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
-
-    - name: Remove old Releases
-      uses: wow-actions/delete-stale-releases@v1
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        keep_latest_count: 3
-        delete_tags: true
-        key: Immortalwrt
