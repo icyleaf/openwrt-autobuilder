@@ -23,7 +23,7 @@ on:
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: master
+  REPO_BRANCH: openwrt-21.02
   CONFIG_FILE: amd64.config
   PREPARE_SH: prepare.sh
   POST_INSTALL_SH: post-install.sh
