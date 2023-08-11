@@ -23,7 +23,6 @@ on:
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: openwrt-21.02
   CONFIG_FILE: amd64.config
   PREPARE_SH: prepare.sh
   POST_INSTALL_SH: post-install.sh
@@ -38,7 +37,13 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     if: github.event.repository.owner.id == github.event.sender.id
-
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+        - openwrt-21.02
+        - v23.05.0-rc3
+        - master
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -60,7 +65,7 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        git clone --depth 1 $REPO_URL -b ${{ matrix.branch }} openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Fetch openwrt git commit
@@ -205,6 +210,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.RELEASE_TAG }}
+        tag_name: ${{ matrix.branch }}-${{ env.RELEASE_TAG }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
