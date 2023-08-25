@@ -48,11 +48,16 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
+    - name: Free Disk Space
+      uses: jlumbroso/free-disk-space@main
+      with:
+        large-packages: false
+        docker-images: false
+
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
         sudo -E apt-get -qq install $(curl -fsSL raw.githubusercontent.com/CSJ1987/openwrt-list/master/depends-immortalwrt-1804)
         sudo -E apt-get -qq autoremove --purge
