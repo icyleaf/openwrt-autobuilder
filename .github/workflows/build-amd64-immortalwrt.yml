@@ -39,6 +39,7 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         branch:
         - openwrt-21.02
