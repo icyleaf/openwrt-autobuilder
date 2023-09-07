@@ -42,8 +42,8 @@ jobs:
       max-parallel: 1
       matrix:
         branch:
-        - openwrt-21.02
-        - v23.05.0-rc3
+        # - openwrt-21.02
+        # - v23.05.0-rc3
         - master
     steps:
     - name: Checkout
