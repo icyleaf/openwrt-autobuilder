@@ -1,10 +1,4 @@
 #!/bin/bash
-#=================================================
-# Description: DIY script
-# Lisence: MIT
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
 
 OPENWRT_PATH=`pwd`
 echo "Openwrt path: $OPENWRT_PATH"
@@ -13,32 +7,16 @@ echo ""
 echo "Perpare Script [Start]"
 
 echo ""
-echo "Add custom packages feed"
-echo "src-git custom https://github.com/icyleaf/openwrt-packages.git" >> feeds.conf.default
-
-# echo ""
-# echo "Add NueXini packages feed"
-# echo "src-git nuexini https://github.com/NueXini/NueXini_Packages" >> feeds.conf.default
+echo "Add icyleaf packages feed"
+echo "src-git icyleaf https://github.com/icyleaf/openwrt-packages.git" >> feeds.conf.default
 
 echo ""
 echo "Updating feeds"
-./scripts/feeds update -a -p custom
-# ./scripts/feeds update -a -p nuexini
-
-mkdir -p package/icyleaf
-git clone --depth=1 https://github.com/sbwml/luci-app-mosdns.git package/icyleaf/luci-app-mosdns
-git clone --depth=1 https://github.com/sbwml/v2ray-geodata package/icyleaf/v2ray-geodata
-
-rm -rf package/icyleaf/luci-app-mosdns/mosdns
-# rm -rf package/nuexini/luci-app-mosdns
-# rm -rf package/nuexini/luci-app-mosdns2
+./scripts/feeds update -a
 
 echo ""
 echo "Installing feeds"
 ./scripts/feeds install -a
-
-# Remove old version packages (custom packages)
-rm -rf package/feed/packages/tailscale
 
 ##################################
 # Custom package
@@ -46,12 +24,40 @@ rm -rf package/feed/packages/tailscale
 
 echo ""
 echo "Downloading Custom packages"
+mkdir -p package/custom
 
+# Remove old version packages (use icyleaf packages instead)
+rm -rf package/feed/packages/tailscale
+
+# Remove mosdns and v2ray-geodata packages (use custom packages instead)
+find ./ | grep Makefile | grep v2ray-geodata | xargs rm -f
+find ./ | grep Makefile | grep mosdns | xargs rm -f
+
+# pre-download geoip & geosite
+mkdir -p files/usr/share/v2ray-test
+curl -o files/usr/share/v2ray-test/geoip.dat https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat
+curl -o /usr/share/v2ray-test/geosite.dat https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat
+
+# install mosdns and luci-app-mosdns
+git clone --depth=1 https://github.com/sbwml/luci-app-mosdns -b v5 package/custom/mosdns
+git clone --depth=1  https://github.com/sbwml/v2ray-geodata package/custom/v2ray-geodata
+
+# install daed-next and luci-app-daed-next
+git clone -b rebase --depth 1 https://github.com/QiuSimons/luci-app-daed-next package/custom/daed-next
+find ./package/custom/daed-next/luci-app-daed-next/root/etc -type f -exec chmod +x {} \;
+
+# install luci-app-log
 git clone --depth=1 -b master https://github.com/gSpotx2f/luci-app-log.git package/luci-app-log
 
-# echo "Using luci-theme-argon offical source code"
-# rm -rf package/lean/luci-theme-argon
-# git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
+##################################
+# Custom package
+##################################
+
+echo ""
+echo "Speed up script"
+
+rm -rf feeds/packages/lang/node
+git clone https://github.com/sbwml/feeds_packages_lang_node-prebuilt -b packages-23.05 feeds/packages/lang/node
 
 cd $OPENWRT_PATH
 
