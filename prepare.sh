@@ -43,10 +43,6 @@ curl -o files/usr/share/v2ray-test/geosite.dat https://cdn.jsdelivr.net/gh/Loyal
 git clone --depth=1 https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
 git clone --depth=1  https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 
-# install daed-next and luci-app-daed-next
-git clone -b rebase https://github.com/QiuSimons/luci-app-daed-next package/daed-next
-find ./package/custom/daed-next/luci-app-daed-next/root/etc -type f -exec chmod +x {} \;
-
 # install luci-app-log
 git clone --depth=1 -b master https://github.com/gSpotx2f/luci-app-log.git package/luci-app-log
 

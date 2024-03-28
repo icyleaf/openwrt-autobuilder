@@ -214,6 +214,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ matrix.branch }}-${{ env.OP_VERSION }}
+        tag_name: ${{ env.OP_VERSION }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
