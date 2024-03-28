@@ -76,6 +76,7 @@ jobs:
         OP_VERSION="$(curl -s https://github.com/immortalwrt/immortalwrt/tags | grep -Eo "v[0-9\.]+\-*r*c*[0-9]*.tar.gz" | sed -n '/[2-9][0-9]/p' | sed -n 1p | sed 's/.tar.gz//g')"
         git clone -b $OP_VERSION --depth 1 $REPO_URL -b ${{ matrix.branch }} openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        echo "op_version=${OP_VERSION}" >> $GITHUB_OUTPUT
 
     - name: Fetch openwrt git commit
       id: openwrt-git-commit
@@ -201,6 +202,7 @@ jobs:
         touch release.txt
         echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYmmdd_HHMMSS_Immortalwrt-GIT-REF)" >> release.txt
         echo "REPO: $REPO_URL/tree/$REPO_BRANCH" >> release.txt
+        echo "RELEASE VERSION: ${{ env.OP_VERSION }}"
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
 
         echo "Changelogs: " >> release.txt
@@ -219,6 +221,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ matrix.branch }}-${{ env.RELEASE_TAG }}
+        tag_name: ${{ matrix.branch }}-${{ env.OP_VERSION }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
