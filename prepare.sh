@@ -1,10 +1,11 @@
 #!/bin/bash
 
-OPENWRT_PATH=`pwd`
+OPENWRT_PATH=${OPENWRT_PATH:-`pwd`}
 echo "Openwrt path: $OPENWRT_PATH"
 echo ""
 
 echo "Perpare Script [Start]"
+cd $OPENWRT_PATH
 
 echo ""
 echo "Add icyleaf packages feed"
@@ -36,14 +37,14 @@ find ./ | grep Makefile | grep mosdns | xargs rm -f
 # pre-download geoip & geosite
 mkdir -p files/usr/share/v2ray-test
 curl -o files/usr/share/v2ray-test/geoip.dat https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat
-curl -o /usr/share/v2ray-test/geosite.dat https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat
+curl -o files/usr/share/v2ray-test/geosite.dat https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat
 
 # install mosdns and luci-app-mosdns
-git clone --depth=1 https://github.com/sbwml/luci-app-mosdns -b v5 package/custom/mosdns
-git clone --depth=1  https://github.com/sbwml/v2ray-geodata package/custom/v2ray-geodata
+git clone --depth=1 https://github.com/sbwml/luci-app-mosdns -b v5 package/mosdns
+git clone --depth=1  https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 
 # install daed-next and luci-app-daed-next
-git clone -b rebase --depth 1 https://github.com/QiuSimons/luci-app-daed-next package/custom/daed-next
+git clone -b rebase https://github.com/QiuSimons/luci-app-daed-next package/daed-next
 find ./package/custom/daed-next/luci-app-daed-next/root/etc -type f -exec chmod +x {} \;
 
 # install luci-app-log
@@ -58,8 +59,6 @@ echo "Speed up script"
 
 rm -rf feeds/packages/lang/node
 git clone https://github.com/sbwml/feeds_packages_lang_node-prebuilt -b packages-23.05 feeds/packages/lang/node
-
-cd $OPENWRT_PATH
 
 ##################################
 # Settings
