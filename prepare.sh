@@ -74,7 +74,7 @@ fi
 echo "Configuring ... "
 
 echo " -> Tagging RELEASE_TAG"
-TEMP=$(date +"Immortalwrt_%Y%m%d_%H%M%S_")$(git rev-parse --short HEAD)
+TEMP=$(date +"Immortalwrt_%Y%m%d_%H%M%S_")$(git rev-parse --abbrev-ref HEAD)
 echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
 
 echo "Perpare Script [End]"

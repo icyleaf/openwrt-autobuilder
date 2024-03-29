@@ -63,6 +63,7 @@ jobs:
         sudo chown $USER:$GROUPS /workdir
 
     - name: Clone source code
+      id: source
       working-directory: /workdir
       run: |
         df -hT $PWD
@@ -194,7 +195,6 @@ jobs:
 
         touch release.txt
         echo "VERSION: $RELEASE_TAG (Immortalwrt-YYYYmmdd_HHMMSS_Immortalwrt-GIT-REF)" >> release.txt
-        echo "REPO: $REPO_URL/tree/$REPO_BRANCH" >> release.txt
         echo "RELEASE VERSION: ${{ env.OP_VERSION }}"
         echo "CONFIG_FILE: $CONFIG_FILE" >> release.txt
 
@@ -214,6 +214,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.OP_VERSION }}
+        tag_name: ${{ env.RELEASE_TAG }}
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
