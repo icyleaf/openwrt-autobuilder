@@ -53,8 +53,13 @@ git clone --depth=1 -b master https://github.com/gSpotx2f/luci-app-log.git packa
 echo ""
 echo "Speed up script"
 
+echo "Replace node version to 23.05"
 rm -rf feeds/packages/lang/node
 git clone https://github.com/sbwml/feeds_packages_lang_node-prebuilt -b packages-23.05 feeds/packages/lang/node
+
+echo "Replace golang version to 1.23"
+rm -rf feeds/packages/lang/golang
+git clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 
 ##################################
 # Settings
