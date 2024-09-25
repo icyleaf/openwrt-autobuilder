@@ -77,4 +77,10 @@ echo " -> Tagging RELEASE_TAG"
 TEMP=$(date +"Immortalwrt_%Y%m%d_%H%M%S_")$(git rev-parse --abbrev-ref HEAD)
 echo "RELEASE_TAG=$TEMP" >> $GITHUB_ENV
 
+##################################
+# Dumping
+##################################
+echo "Dumping language versions ..."
+find $OPENWRT_PATH/feeds/packages/lang/ -type d ! -name '*-*' -exec grep -H 'GO_VERSION_MAJOR_MINOR:\|PKG_VERSION:' {}/Makefile \; 2>/dev/null
+
 echo "Perpare Script [End]"
