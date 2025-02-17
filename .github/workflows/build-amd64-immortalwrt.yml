@@ -19,10 +19,17 @@ on:
       - 'immortalwrt.config'
       - '.github/workflows/*-amd64-immortalwrt.yml'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'immortalwrt version'
+        required: false
+        default: 'v23.05.4'
+        type: string
 
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
+  VERSION: ${{ inputs.version || 'v23.05.4' }}
   CONFIG_FILE: amd64.config
   PREPARE_SH: prepare.sh
   POST_INSTALL_SH: post-install.sh
@@ -67,10 +74,10 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        OP_VERSION="$(curl -s https://github.com/immortalwrt/immortalwrt/tags | grep -Eo "v[0-9\.]+\-*r*c*[0-9]*.tar.gz" | sed -n '/[2-9][0-9]/p' | sed -n 1p | sed 's/.tar.gz//g')"
-        git clone -b $OP_VERSION --depth 1 $REPO_URL openwrt
+        # LATEST_VERSION="$(curl -s https://github.com/immortalwrt/immortalwrt/tags | grep -Eo "v[0-9\.]+\-*r*c*[0-9]*.tar.gz" | sed -n '/[2-9][0-9]/p' | sed -n 1p | sed 's/.tar.gz//g')"
+        git clone -b $VERSION --depth 1 $REPO_URL openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        echo "op_version=${OP_VERSION}" >> $GITHUB_OUTPUT
+        echo "OP_VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
     - name: Fetch openwrt git commit
       id: openwrt-git-commit
