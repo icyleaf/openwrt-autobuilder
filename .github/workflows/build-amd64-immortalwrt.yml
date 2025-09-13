@@ -23,13 +23,13 @@ on:
       version:
         description: 'immortalwrt version'
         required: false
-        default: 'v23.05.4'
+        default: 'v24.10.2'
         type: string
 
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  VERSION: ${{ inputs.version || 'v23.05.4' }}
+  VERSION: ${{ inputs.version || 'v24.10.2' }}
   CONFIG_FILE: amd64.config
   PREPARE_SH: prepare.sh
   POST_INSTALL_SH: post-install.sh
